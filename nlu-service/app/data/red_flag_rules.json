@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "rule_001",
+      "name": "chest_pain_cardiac",
+      "conditions": {
+        "all_of": ["chest_pain"],
+        "any_of": ["radiating_to_arm", "radiating_to_jaw", "diaphoresis", "shortness_of_breath", "nausea"]
+      },
+      "tier": "emergency",
+      "rationale": "Chest pain with radiation or associated cardiac symptoms suggests acute coronary syndrome",
+      "is_active": true
+    },
+    {
+      "id": "rule_002",
+      "name": "difficulty_breathing_rest",
+      "conditions": {
+        "all_of": ["difficulty_breathing", "at_rest"]
+      },
+      "tier": "emergency",
+      "rationale": "Dyspnea at rest is always an emergency until proven otherwise",
+      "is_active": true
+    },
+    {
+      "id": "rule_003",
+      "name": "meningitis_triad",
+      "conditions": {
+        "all_of": ["stiff_neck", "fever", "photophobia"]
+      },
+      "tier": "emergency",
+      "rationale": "Classic meningitis presentation requiring immediate evaluation",
+      "is_active": true
+    },
+    {
+      "id": "rule_004",
+      "name": "stroke_signs",
+      "conditions": {
+        "any_of": ["sudden_weakness_one_side", "sudden_speech_difficulty", "sudden_vision_loss", "sudden_severe_headache", "facial_droop"]
+      },
+      "tier": "emergency",
+      "rationale": "FAST criteria for stroke — time-critical emergency",
+      "is_active": true
+    },
+    {
+      "id": "rule_005",
+      "name": "severe_bleeding",
+      "conditions": {
+        "all_of": ["severe_bleeding", "uncontrolled"]
+      },
+      "tier": "emergency",
+      "rationale": "Uncontrolled hemorrhage is immediately life-threatening",
+      "is_active": true
+    },
+    {
+      "id": "rule_006",
+      "name": "anaphylaxis",
+      "conditions": {
+        "all_of": ["allergic_reaction"],
+        "any_of": ["difficulty_breathing", "swelling_face_throat", "dizziness_fainting"]
+      },
+      "tier": "emergency",
+      "rationale": "Anaphylaxis requires immediate epinephrine and emergency care",
+      "is_active": true
+    },
+    {
+      "id": "rule_007",
+      "name": "seizure_active",
+      "conditions": {
+        "any_of": ["active_seizure", "seizure_over_5min", "repeated_seizures"]
+      },
+      "tier": "emergency",
+      "rationale": "Status epilepticus or first-time seizure requires emergency evaluation",
+      "is_active": true
+    },
+    {
+      "id": "rule_008",
+      "name": "head_injury_severe",
+      "conditions": {
+        "all_of": ["head_injury"],
+        "any_of": ["loss_of_consciousness", "confusion", "vomiting_repeated", "seizure"]
+      },
+      "tier": "emergency",
+      "rationale": "Head injury with neurological signs suggests traumatic brain injury",
+      "is_active": true
+    },
+    {
+      "id": "rule_009",
+      "name": "high_fever_confusion",
+      "conditions": {
+        "all_of": ["high_fever", "confusion"]
+      },
+      "tier": "emergency",
+      "rationale": "High fever with altered mental status may indicate sepsis or encephalitis",
+      "is_active": true
+    },
+    {
+      "id": "rule_010",
+      "name": "suicidal_ideation",
+      "conditions": {
+        "any_of": ["suicidal_thoughts", "self_harm_intent", "suicide_attempt"]
+      },
+      "tier": "emergency",
+      "rationale": "Any expression of suicidal intent requires immediate crisis intervention",
+      "is_active": true
+    },
+    {
+      "id": "rule_011",
+      "name": "child_high_fever",
+      "conditions": {
+        "all_of": ["fever"],
+        "any_of": ["age_under_3months", "fever_over_40c", "lethargy", "not_drinking"]
+      },
+      "tier": "emergency",
+      "rationale": "High fever in infants/young children has lower threshold for emergency",
+      "is_active": true
+    },
+    {
+      "id": "rule_012",
+      "name": "pregnancy_emergency",
+      "conditions": {
+        "all_of": ["pregnant"],
+        "any_of": ["severe_abdominal_pain", "heavy_bleeding", "severe_headache_pregnancy", "reduced_fetal_movement"]
+      },
+      "tier": "emergency",
+      "rationale": "Obstetric emergencies are time-critical for both mother and baby",
+      "is_active": true
+    }
+  ]
+}

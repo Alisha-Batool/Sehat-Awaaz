@@ -1,0 +1,87 @@
+{
+  "app_name": "Sehat Awaaz",
+  "tagline": "Aap ki sehat, aap ki awaaz",
+  "select_language": "Apni zaban muntakhab karein",
+  "continue": "Jaari rakhein",
+  "back": "Wapas",
+  "skip": "Chorein",
+  "or": "ya",
+  "loading": "Load ho raha hai...",
+  "error_generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
+
+  "onboarding": {
+    "title": "Sehat Awaaz kaise kaam karta hai",
+    "step1": "Awaaz ya text se apni alaamaat batayein",
+    "step2": "Hum behtar samajhne ke liye chand sawaal poochein ge",
+    "step3": "Agla qadam kya hai is ki rehnumai hasil karein",
+    "disclaimer": "Sehat Awaaz tibbi tashkhees nahi hai. Hamesha healthcare professional se mashwara karein.",
+    "get_started": "Shuru karein"
+  },
+
+  "home": {
+    "title": "Aap ki kya alaamaat hain?",
+    "subtitle": "Likhein ya bolein — hum Urdu, Punjabi, Pashto, Sindhi aur English samajhte hain",
+    "type_symptoms": "Apni alaamaat likhein",
+    "use_voice": "Awaaz istemal karein",
+    "placeholder": "Misaal: Mujhe 2 din se sar dard aur bukhar hai...",
+    "guest_notice": "Guest mode — aap ka data save nahi hoga"
+  },
+
+  "voice": {
+    "tap_to_speak": "Bolne ke liye tap karein",
+    "listening": "Sun rahe hain...",
+    "stop": "Rukein",
+    "processing": "Aap ki awaaz process ho rahi hai...",
+    "not_supported": "Is browser mein awaaz support nahi hai. Chrome istemal karein ya type karein.",
+    "no_speech": "Koi awaaz nahi mili. Dobara koshish karein.",
+    "no_mic": "Microphone nahi mila. Apna mic check karein.",
+    "mic_denied": "Microphone tak rasai mustarad ho gayi. Browser ki settings mein mic ki ijazat dein.",
+    "network_error": "Network ki kharabi. Apna connection check karein."
+  },
+
+  "transcript": {
+    "title": "Apne alfaaz check karein",
+    "subtitle": "Jaari rakhne se pehle check karein",
+    "placeholder": "Zaroorat ho to yahan text mein tarmeem karein...",
+    "confirm": "Yeh durust hai",
+    "retake": "Dobara record karein"
+  },
+
+  "clarify": {
+    "title": "Ek fori sawaal",
+    "subtitle": "Behtar samajhne mein hamari madad karein",
+    "not_sure": "Pata nahi",
+    "progress": "Sawaal {{current}} az {{max}}"
+  },
+
+  "result": {
+    "emergency_title": "Emergency medical aid hasil karein",
+    "clinic_title": "Clinic jayein",
+    "home_care_title": "Ghar par dekh bhaal",
+    "call_now": "Abhi 1122 par call karein",
+    "find_clinic": "Qareebi clinic talaash karein",
+    "home_care_tips": "Khud ki dekh bhaal",
+    "watch_for": "In intibaahi alaamaat par nazar rakhein",
+    "re_triage": "Nayi tashkhees shuru karein",
+    "share": "Nateeja share karein"
+  },
+
+  "history": {
+    "title": "Aap ki sehat ki tareekh",
+    "empty": "Abhi tak koi session nahi",
+    "delete": "Delete karein",
+    "delete_all": "Tamam tareekh delete karein"
+  },
+
+  "auth": {
+    "login": "Log in / Sign up",
+    "phone_placeholder": "03001234567",
+    "send_otp": "OTP bhejein",
+    "enter_otp": "6 digit ka code darj karein",
+    "verify": "Tasdeeq karein",
+    "guest": "Guest ke tor par jaari rakhein",
+    "guest_note": "Guest mode mein aap ki tareekh save nahi hogi"
+  },
+
+  "disclaimer_text": "Sehat Awaaz tibbi tashkhees nahi hai. Tibbi mashwaray ke liye hamesha healthcare professional se mashwara karein. Emergency mein 1122 par call karein."
+}

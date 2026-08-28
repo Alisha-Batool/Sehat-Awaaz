@@ -1,0 +1,87 @@
+{
+  "app_name": "Sehat Awaaz",
+  "tagline": "Your health, your voice",
+  "select_language": "Select your language",
+  "continue": "Continue",
+  "back": "Back",
+  "skip": "Skip",
+  "or": "or",
+  "loading": "Loading...",
+  "error_generic": "Something went wrong. Please try again.",
+
+  "onboarding": {
+    "title": "How Sehat Awaaz Works",
+    "step1": "Tell us your symptoms by voice or text",
+    "step2": "We'll ask a few questions to understand better",
+    "step3": "Get guidance on what to do next",
+    "disclaimer": "Sehat Awaaz is NOT a medical diagnosis. It helps you understand symptom urgency. Always consult a healthcare professional.",
+    "get_started": "Get Started"
+  },
+
+  "home": {
+    "title": "What are your symptoms?",
+    "subtitle": "Type or speak — we understand Urdu, Punjabi, Pashto, Sindhi, and English",
+    "type_symptoms": "Type your symptoms",
+    "use_voice": "Use your voice",
+    "placeholder": "For example: I have had a headache and fever for 2 days...",
+    "guest_notice": "Guest mode — your data will not be saved"
+  },
+
+  "voice": {
+    "tap_to_speak": "Tap to speak",
+    "listening": "Listening...",
+    "stop": "Stop",
+    "processing": "Processing your voice...",
+    "not_supported": "Voice input is not supported in this browser. Please use Chrome or type your symptoms.",
+    "no_speech": "No speech detected. Please try again.",
+    "no_mic": "No microphone found. Please check your mic.",
+    "mic_denied": "Microphone access denied. Please allow mic in browser settings.",
+    "network_error": "Network error. Please check your connection."
+  },
+
+  "transcript": {
+    "title": "Review your words",
+    "subtitle": "Please check and correct if needed before continuing",
+    "placeholder": "Edit the text here if needed...",
+    "confirm": "This is correct",
+    "retake": "Record again"
+  },
+
+  "clarify": {
+    "title": "A quick question",
+    "subtitle": "Help us understand better",
+    "not_sure": "Not sure",
+    "progress": "Question {{current}} of {{max}}"
+  },
+
+  "result": {
+    "emergency_title": "Seek Emergency Care",
+    "clinic_title": "Visit a Clinic",
+    "home_care_title": "Home Care Guidance",
+    "call_now": "Call 1122 Now",
+    "find_clinic": "Find Nearby Clinics",
+    "home_care_tips": "Self-Care Tips",
+    "watch_for": "Watch for these warning signs",
+    "re_triage": "Start New Assessment",
+    "share": "Share Result"
+  },
+
+  "history": {
+    "title": "Your Health History",
+    "empty": "No past sessions yet",
+    "delete": "Delete",
+    "delete_all": "Delete All History"
+  },
+
+  "auth": {
+    "login": "Log In / Sign Up",
+    "phone_placeholder": "03001234567",
+    "send_otp": "Send OTP",
+    "enter_otp": "Enter the 6-digit code",
+    "verify": "Verify",
+    "guest": "Continue as Guest",
+    "guest_note": "Your history won't be saved in guest mode"
+  },
+
+  "disclaimer_text": "Sehat Awaaz is not a medical diagnosis. Always consult a healthcare professional for medical advice. In an emergency, call 1122."
+}
