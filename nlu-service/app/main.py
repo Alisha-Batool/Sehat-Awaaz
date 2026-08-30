@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, RedirectResponse
 from app.routers import extraction, triage, clarification
 from app.config import ENV
 
@@ -20,6 +21,16 @@ app.add_middleware(
 app.include_router(extraction.router, prefix="/api")
 app.include_router(triage.router, prefix="/api")
 app.include_router(clarification.router, prefix="/api")
+
+
+@app.get("/")
+async def root():
+    return {"service": "Sehat Awaaz NLU", "docs": "/docs"}
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    return JSONResponse(content={}, status_code=204)
 
 
 @app.get("/health")
