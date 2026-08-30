@@ -73,9 +73,11 @@ async def extract_symptoms(text: str, language: str = "en") -> SymptomProfile:
             symptom_keys=[],
             severity=None,
         )
-    except Exception as e:
-        # If Ollama is unavailable, return raw text as symptoms
+    except Exception as exc:
+        # If Ollama is unavailable, log the failure and return raw text as symptoms
+        print(f"Symptom extraction failed: {exc}")
         return SymptomProfile(
             symptoms=[text],
             symptom_keys=[],
+            severity=None,
         )
