@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4, validate: isUuid } = require('uuid');
 const db = require('../config/database');
 const nluClient = require('./nlu.client');
 const auditService = require('./audit.service');
@@ -16,10 +16,15 @@ const logger = require('../utils/logger');
 async function startTriage(text, language, userId, isGuest) {
   const sessionId = uuidv4();
 
+  // Guest JWTs carry a random UUID that has no matching users row, so inserting
+  // it as sessions.user_id violates the foreign key constraint. Guests get an
+  // anonymous session (NULL user_id); authenticated users keep ownership.
+  const sessionUserId = isGuest ? null : userId;
+
   // 1. Create session record
   await db.query(
     'INSERT INTO sessions (id, user_id, language, status) VALUES ($1, $2, $3, $4)',
-    [sessionId, userId, language, SESSION_STATUS.ACTIVE]
+    [sessionId, sessionUserId, language, SESSION_STATUS.ACTIVE]
   );
 
   try {
@@ -121,13 +126,34 @@ async function getResult(sessionId) {
 }
 
 /**
+ * Resolve the NLU rule engine's rule identifier to a value that is safe for
+ * the triage_results.rule_id UUID foreign key (red_flag_rules.id).
+ *
+ * The rule engine returns JSON keys such as "rule_004"; the seeded
+ * red_flag_rules rows are keyed by (version, name) and do not store those
+ * keys, so no reliable key-to-UUID mapping exists and we persist NULL.
+ * Only identifiers that are valid UUIDs of existing rules are preserved.
+ */
+async function resolveRuleId(ruleKey) {
+  if (!ruleKey) return null;
+  const key = String(ruleKey);
+  if (!isUuid(key)) return null;
+  const result = await db.query('SELECT id FROM red_flag_rules WHERE id = $1', [key]);
+  return result.rows.length > 0 ? key : null;
+}
+
+/**
  * Compose the final triage result: save to DB, generate explanation, attach navigation/emergency data
  */
 async function composeResult(sessionId, userId, isGuest, inputText, symptomProfile, triageResult, language) {
   const tier = triageResult.tier;
   const rationale = triageResult.rationale || '';
   const confidence = triageResult.confidence || 0;
-  const ruleId = triageResult.rule_id || null;
+  // Rule key as returned by the NLU rule engine (e.g. "rule_004"). It is NOT a
+  // red_flag_rules.id UUID — keep it for the response and audit trail, but
+  // never insert it into the UUID foreign-key column.
+  const ruleKey = triageResult.rule_id || null;
+  const ruleId = await resolveRuleId(ruleKey);
   const ruleVersion = triageResult.rule_version || null;
   const modelVersion = triageResult.model_version || 'ollama-local';
 
@@ -149,7 +175,7 @@ async function composeResult(sessionId, userId, isGuest, inputText, symptomProfi
     sessionId,
     action: 'triage_completed',
     inputHash: hashInput(inputText || ''),
-    rulePath: ruleId ? 'rule' : 'llm',
+    rulePath: ruleKey ? 'rule' : 'llm',
     outputTier: tier,
     confidence,
     ruleVersion,
@@ -163,7 +189,8 @@ async function composeResult(sessionId, userId, isGuest, inputText, symptomProfi
     tier,
     explanation,
     confidence,
-    source: ruleId ? 'rule' : 'llm',
+    source: ruleKey ? 'rule' : 'llm',
+    rule_id: ruleKey,
     disclaimer: getDisclaimer(language),
   };
 
