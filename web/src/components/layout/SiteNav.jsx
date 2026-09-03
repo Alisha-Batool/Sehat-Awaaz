@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { to: '/home', label: 'Home' },
   { to: '/symptoms', label: 'Symptoms' },
   { to: '/voice', label: 'Voice' },
-  { to: '/clinic-finder', label: 'Find care' },
+  { to: '/symptoms', label: 'Find care' },
   { to: '/history', label: 'History' },
 ];
 
