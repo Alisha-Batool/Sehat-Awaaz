@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import HeroSection from '../components/hero/HeroSection';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English', dir: 'ltr' },
@@ -24,28 +25,19 @@ export default function LanguageSelect() {
   };
 
   return (
-    <div className="screen">
-      <div className="screen-header">
-        <h1>Sehat Awaaz</h1>
-        <p style={{ color: '#555' }}>صحت آواز</p>
-        <p className="mt-sm">Select your language / اپنی زبان منتخب کریں</p>
+    <HeroSection>
+      <div className="hero-language-panel liquid-glass">
+        <p className="hero-kicker">CARE, HEARD CLEARLY</p>
+        <p className="hero-subtitle">Select your language / اپنی زبان منتخب کریں</p>
+        <div className="hero-languages">
+          {LANGUAGES.map((lang) => (
+            <button key={lang.code} className="language-option" onClick={() => selectLanguage(lang)}>
+              <span className="language-option-native">{lang.native}</span>
+              {lang.label !== lang.native && <span className="language-option-label">{lang.label}</span>}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {LANGUAGES.map((lang) => (
-          <button
-            key={lang.code}
-            className="btn btn-secondary btn-block"
-            onClick={() => selectLanguage(lang)}
-            style={{ fontSize: '1.1rem', padding: '16px 24px' }}
-          >
-            <span>{lang.native}</span>
-            {lang.label !== lang.native && (
-              <span style={{ fontSize: '0.85rem', opacity: 0.7 }}> ({lang.label})</span>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
+    </HeroSection>
   );
 }

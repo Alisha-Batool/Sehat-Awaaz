@@ -53,23 +53,15 @@ export default function ClinicFinder() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ fontSize: '1.05rem' }}>{f.name}</h3>
-                <p style={{ fontSize: '0.85rem', color: '#666' }}>
+                <p className="text-muted" style={{ fontSize: '0.85rem' }}>
                   {f.type} — {f.district}, {f.province}
                 </p>
-                <p style={{ fontSize: '0.85rem', color: '#666' }}>
+                <p className="text-muted" style={{ fontSize: '0.85rem' }}>
                   {f.distance_km} km away
                   {f.emergency_capable && ' — Emergency capable'}
                 </p>
               </div>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  background: f.confidence === 'high' ? '#E8F5E9' : f.confidence === 'medium' ? '#FFF8E1' : '#FFEBEE',
-                  color: f.confidence === 'high' ? '#2E7D32' : f.confidence === 'medium' ? '#F57F17' : '#C62828',
-                }}
-              >
+              <span className={`confidence-chip confidence-${f.confidence || 'low'}`}>
                 {f.confidence} confidence
               </span>
             </div>
@@ -93,7 +85,7 @@ export default function ClinicFinder() {
             )}
 
             {f.last_verified && (
-              <p style={{ fontSize: '0.75rem', color: '#999', marginTop: '8px' }}>
+              <p className="text-muted" style={{ fontSize: '0.75rem', marginTop: '8px' }}>
                 Last verified: {new Date(f.last_verified).toLocaleDateString()}
               </p>
             )}

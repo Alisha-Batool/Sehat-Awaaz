@@ -29,7 +29,7 @@ export default function HomeCareGuidance() {
               <ul style={{ paddingLeft: '20px', lineHeight: 2.2 }}>
                 {guidance.watchFor.map((sign, i) => <li key={i}>{sign}</li>)}
               </ul>
-              <p style={{ marginTop: '12px', fontSize: '0.9rem', color: '#666' }}>
+              <p className="text-muted" style={{ marginTop: '12px', fontSize: '0.9rem' }}>
                 If any of these occur, seek medical help immediately.
               </p>
             </div>

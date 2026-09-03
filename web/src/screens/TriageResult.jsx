@@ -41,19 +41,7 @@ export default function TriageResult() {
         <span className={`tier-badge ${config.className}`} style={{ marginTop: '12px' }}>
           {tier.replace('_', ' ').toUpperCase()}
         </span>
-        {source === 'demo' && (
-          <div style={{
-            marginTop: '8px',
-            padding: '4px 12px',
-            borderRadius: '12px',
-            background: '#FFF3E0',
-            color: '#E65100',
-            fontSize: '0.75rem',
-            display: 'inline-block',
-          }}>
-            Demo Mode — backend not connected
-          </div>
-        )}
+        {source === 'demo' && <div className="badge-demo">Demo Mode — backend not connected</div>}
       </div>
 
       <div className="card mb-md">

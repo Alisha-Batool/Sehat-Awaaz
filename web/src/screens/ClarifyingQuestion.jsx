@@ -58,7 +58,7 @@ export default function ClarifyingQuestion() {
       <div className="screen-header">
         <h1>{t('clarify.title')}</h1>
         <p>{t('clarify.subtitle')}</p>
-        <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '4px' }}>
+        <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '4px' }}>
           {t('clarify.progress', { current: turn, max: max_turns })}
         </p>
       </div>

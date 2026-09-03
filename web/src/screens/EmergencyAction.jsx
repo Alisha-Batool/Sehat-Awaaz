@@ -45,7 +45,7 @@ export default function EmergencyAction() {
       </a>
 
       {emergency?.message && (
-        <p style={{ textAlign: 'center', marginTop: '12px', color: '#555' }}>
+        <p className="text-muted" style={{ textAlign: 'center', marginTop: '12px' }}>
           {typeof emergency.message === 'string' ? emergency.message : emergency.message.en}
         </p>
       )}

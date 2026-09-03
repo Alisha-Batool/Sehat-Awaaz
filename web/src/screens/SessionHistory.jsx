@@ -41,7 +41,7 @@ export default function SessionHistory() {
 
       {!loading && sessions.length === 0 && (
         <div className="card text-center">
-          <p style={{ color: '#999' }}>{t('history.empty')}</p>
+          <p className="text-muted">{t('history.empty')}</p>
         </div>
       )}
 
@@ -52,7 +52,7 @@ export default function SessionHistory() {
               <div>
                 <span
                   style={{
-                    color: tierColors[session.tier] || '#333',
+                    color: tierColors[session.tier] || 'var(--color-text)',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.85rem',
@@ -60,7 +60,7 @@ export default function SessionHistory() {
                 >
                   {session.tier?.replace('_', ' ')}
                 </span>
-                <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+                <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
                   {new Date(session.created_at).toLocaleDateString()} —{' '}
                   {new Date(session.created_at).toLocaleTimeString()}
                 </p>
