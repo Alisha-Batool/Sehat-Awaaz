@@ -17,7 +17,7 @@ import SessionHistory from './screens/SessionHistory';
 import Disclaimer from './components/common/Disclaimer';
 import SiteNav from './components/layout/SiteNav';
 
-const RTL_LANGUAGES = new Set(['ur', 'ps', 'sd']);
+const RTL_LANGUAGES = new Set(['ur', 'ps']);
 
 export default function App() {
   const { i18n } = useTranslation();
