@@ -17,17 +17,15 @@ const SESSION_STATUS = {
 const LANGUAGES = {
   EN: 'en',
   UR: 'ur',
-  PA: 'pa',
   PS: 'ps',
-  SD: 'sd',
   UR_ROMAN: 'ur-roman',
 };
 
 // RTL languages
-const RTL_LANGUAGES = ['ur', 'ps', 'sd'];
+const RTL_LANGUAGES = ['ur', 'ps'];
 
 // Maximum clarification turns
-const MAX_CLARIFICATION_TURNS = 4;
+const MAX_CLARIFICATION_TURNS = 3;
 
 // Tier priority (higher = more cautious)
 const TIER_PRIORITY = {
