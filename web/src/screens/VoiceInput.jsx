@@ -7,9 +7,7 @@ const SPEECH_LANG_MAP = {
   en: 'en-US',
   ur: 'ur-PK',
   'ur-roman': 'en-US', // Roman Urdu uses Latin script; English STT handles it
-  pa: 'pa-IN',
   ps: 'ps-AF',
-  sd: 'sd-PK',
 };
 
 export default function VoiceInput() {
