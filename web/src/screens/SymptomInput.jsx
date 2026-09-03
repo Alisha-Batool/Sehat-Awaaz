@@ -32,7 +32,7 @@ export default function SymptomInput() {
     setIsDemo(false);
 
     // Normalize language to a supported backend code
-    const supportedLangs = ['en', 'ur', 'ur-roman', 'pa', 'ps', 'sd'];
+    const supportedLangs = ['en', 'ur', 'ur-roman', 'ps'];
     const language = supportedLangs.includes(i18n.language)
       ? i18n.language
       : supportedLangs.find((l) => i18n.language?.startsWith(l)) || 'en';
