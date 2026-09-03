@@ -6,9 +6,7 @@ const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English', dir: 'ltr' },
   { code: 'ur', label: 'Urdu', native: 'اردو', dir: 'rtl' },
   { code: 'ur-roman', label: 'Roman Urdu', native: 'Roman Urdu', dir: 'ltr' },
-  { code: 'pa', label: 'Punjabi', native: 'ਪੰਜਾਬੀ', dir: 'ltr' },
   { code: 'ps', label: 'Pashto', native: 'پښتو', dir: 'rtl' },
-  { code: 'sd', label: 'Sindhi', native: 'سنڌي', dir: 'rtl' },
 ];
 
 export default function LanguageSelect() {
