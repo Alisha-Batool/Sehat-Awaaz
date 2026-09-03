@@ -9,9 +9,7 @@
         "en": "How long have you had this symptom?",
         "ur": "یہ علامت کتنے عرصے سے ہے؟",
         "ur-roman": "Yeh alaamat kitne arsay se hai?",
-        "pa": "اینہ نشانہ کنا چر توں اے؟",
-        "ps": "دا نښه څومره موده کیږي؟",
-        "sd": "ھي علامت ڪيتري عرصي کان آھي؟"
+        "ps": "دا نښه څومره موده کیږي؟"
       },
       "options": [
         {"value": "less_than_24h", "en": "Less than 24 hours", "ur": "24 گھنٹے سے کم"},

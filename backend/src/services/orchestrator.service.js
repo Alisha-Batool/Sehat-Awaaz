@@ -213,9 +213,7 @@ function getDisclaimer(language) {
     en: 'Sehat Awaaz is not a medical diagnosis. Always consult a healthcare professional for medical advice. In an emergency, call 1122.',
     ur: 'صحت آواز طبی تشخیص نہیں ہے۔ طبی مشورے کے لیے ہمیشہ صحت کے پیشہ ور سے مشورہ کریں۔ ہنگامی صورت میں 1122 پر کال کریں۔',
     'ur-roman': 'Sehat Awaaz tibbi tashkhees nahi hai. Tibbi mashwaray ke liye hamesha healthcare professional se mashwara karein. Emergency mein 1122 par call karein.',
-    pa: 'صحت آواز طبی تشخیص نہیں ہے۔ ڈاکٹر نال ضرور مشورہ کرو۔',
     ps: 'صحت آواز طبي تشخیص نه دی. د روغتیايي مشورې لپاره تل د روغتیا متخصص سره مشوره وکړئ.',
-    sd: 'صحت آواز طبي تشخيص ناهيو. ڊاڪٽر سان ضرور صلاح ڪريو.',
   };
   return disclaimers[language] || disclaimers.en;
 }
