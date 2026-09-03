@@ -30,8 +30,8 @@ const otpValidation = body('otp')
 
 const languageValidation = body('language')
   .optional()
-  .isIn(['en', 'ur', 'pa', 'ps', 'sd', 'ur-roman'])
-  .withMessage('Language must be one of: en, ur, pa, ps, sd, ur-roman');
+  .isIn(['en', 'ur', 'ur-roman', 'ps'])
+  .withMessage('Language must be one of: en, ur, ur-roman, ps');
 
 const symptomTextValidation = body('text')
   .isString()
