@@ -182,6 +182,13 @@ async function submitClarification(sessionId, answer, questionId) {
     );
   }
 
+  const answeredQuestion = previousAnswers.find(
+    (a) => a.question_id === questionId && a.answer !== null
+  );
+  if (answeredQuestion) {
+    throw new Error('Question has already been answered');
+  }
+
   // Record the answer. Replace the placeholder entry that recorded the asked question.
   const answeredIndex = previousAnswers.findIndex(
     (a) => a.question_id === questionId && a.answer === null
@@ -206,13 +213,21 @@ async function submitClarification(sessionId, answer, questionId) {
 
   const newTurnCount = session.turn_count + 1;
 
-  await Session.findByIdAndUpdate(sessionId, {
+  const answerUpdate = await Session.updateOne({
+    _id: sessionId,
+    status: SESSION_STATUS.AWAITING_CLARIFICATION,
+    turn_count: session.turn_count,
+    clarification_answers: { $eq: previousAnswers },
+  }, {
     $set: {
       clarification_answers: updatedAnswers,
       turn_count: newTurnCount,
       updated_at: new Date(),
     },
   });
+  if (answerUpdate.modifiedCount === 0) {
+    return submitClarification(sessionId, answer, questionId);
+  }
 
   const answeredOnlyUpdated = updatedAnswers.filter((a) => a.answer !== null);
   const isGuest = session.user_id === null;
@@ -253,14 +268,25 @@ async function submitClarification(sessionId, answer, questionId) {
         turn: clarification.turn_count,
       };
 
-      await Session.findByIdAndUpdate(sessionId, {
-        $push: {
-          clarification_answers: nextQuestion,
-        },
-        $set: {
-          updated_at: new Date(),
-        },
-      });
+      const awaitingSession = await Session.findOneAndUpdate(
+        { _id: sessionId, status: SESSION_STATUS.AWAITING_CLARIFICATION },
+        {
+          $addToSet: {
+            clarification_answers: nextQuestion,
+          },
+          $set: {
+            updated_at: new Date(),
+          },
+        }
+      ).lean();
+
+      if (!awaitingSession) {
+        const completedResult = await getResult(sessionId);
+        if (completedResult) {
+          return formatCompletedResult(completedResult, session.language);
+        }
+        throw new Error('Session is no longer awaiting clarification');
+      }
 
       return {
         sessionId,
@@ -358,7 +384,7 @@ async function composeResult(sessionId, userId, isGuest, inputText, symptomProfi
   const explanation = explanationService.generate(tier, rationale, language);
 
   // Save triage result
-  await TriageResult.create({
+  const storedResult = await TriageResult.create({
     session_id: sessionId,
     tier,
     rule_id: ruleId,
@@ -369,13 +395,36 @@ async function composeResult(sessionId, userId, isGuest, inputText, symptomProfi
     model_version: modelVersion,
   });
 
-  // Mark session as completed
-  await Session.findByIdAndUpdate(sessionId, {
-    $set: {
-      status: SESSION_STATUS.COMPLETED,
-      updated_at: new Date(),
-    },
-  });
+  let completionUpdate;
+  try {
+    completionUpdate = await Session.updateOne(
+      { _id: sessionId, status: { $ne: SESSION_STATUS.COMPLETED } },
+      {
+        $set: {
+          status: SESSION_STATUS.COMPLETED,
+          updated_at: new Date(),
+        },
+      }
+    );
+  } catch (err) {
+    await TriageResult.deleteOne({ _id: storedResult._id }).catch((cleanupError) => {
+      logger.error('Failed to clean up an uncommitted triage result', {
+        sessionId,
+        resultId: storedResult._id,
+        error: cleanupError.message,
+      });
+    });
+    throw err;
+  }
+
+  if (completionUpdate.modifiedCount === 0) {
+    await TriageResult.deleteOne({ _id: storedResult._id });
+    const existingResult = await getResult(sessionId);
+    if (!existingResult) {
+      throw new Error('Session not found or completion already in progress');
+    }
+    return formatCompletedResult(existingResult, language);
+  }
 
   // Write audit log (async, don't block response)
   auditService.log({

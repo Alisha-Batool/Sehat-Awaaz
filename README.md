@@ -7,7 +7,7 @@ A voice-first healthcare triage platform designed for Pakistan. Helps users unde
 - **web/** — React PWA (frontend)
 - **backend/** — Node.js/Express BFF (API gateway + orchestrator)
 - **nlu-service/** — Python/FastAPI (NLU + triage engine + Ollama LLM)
-- **PostgreSQL** — Primary database
+- **MongoDB** — Application database (local MongoDB service)
 
 ### Nearby healthcare facilities
 After receiving a triage result, users can optionally search for nearby hospitals and clinics. Location permission is requested only when the user chooses to use their current location; city/address search is also available. Google Maps JavaScript API displays the map and Google Places API (New) finds facilities; facility search is separate from triage and does not change the recommended level of care.
@@ -21,8 +21,9 @@ Google setup references: [Maps JavaScript API](https://developers.google.com/map
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+ (a project virtual environment is used by the one-command launcher)
-- Docker & Docker Compose
+- MongoDB (running locally, or configured with `MONGODB_URI`)
 - Ollama (https://ollama.ai) — free local LLM
+- Docker & Docker Compose (optional; only needed for the retained PostgreSQL legacy database)
 
 ### First-time setup (Windows PowerShell)
 Install the dependencies once:
@@ -41,7 +42,7 @@ From the repository root, run:
 npm run dev
 ```
 
-This waits for PostgreSQL to become healthy, then starts the backend, NLU service, and frontend together in the same terminal. Press **Ctrl+C** to stop the app services; PostgreSQL remains running. Use `npm run db:down` when you also want to stop the database.
+This starts the backend, NLU service, and frontend together in the same terminal. The backend connects to MongoDB before listening; ensure the MongoDB service is running and configure `MONGODB_URI` in `backend/.env` if the default `mongodb://127.0.0.1:27017/sehat_awaaz` is not appropriate. Press **Ctrl+C** to stop the app services. PostgreSQL remains available as an optional legacy service through `npm run db:up` and `npm run db:down`; it is not required by the application launcher.
 
 The web app is at http://localhost:5173, the backend health endpoint is http://localhost:5000/api/health, and the NLU API docs are at http://localhost:8001/docs.
 
@@ -54,7 +55,7 @@ To download the local Ollama model once, run `ollama pull llama3.1`.
 | Frontend | React + Vite + i18next |
 | Backend | Node.js + Express |
 | NLU/Triage | Python + FastAPI + Ollama |
-| Database | PostgreSQL |
+| Database | MongoDB |
 | Maps and facilities | Google Maps JavaScript API + Places API (New) |
 | Speech | Web Speech API |
 | Auth | Mock OTP (dev) + JWT |
