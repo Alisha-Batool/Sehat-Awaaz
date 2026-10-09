@@ -147,10 +147,10 @@
   },
 
   "facilities": {
-    "subtitle": "د ټریاژ وروسته په Google Maps کې نږدې روغتونونه او کلینیکونه ولټوئ.",
-    "api_key_required": "په اپ کې د Google Map د فعالولو لپاره په web/.env.local کې VITE_GOOGLE_MAPS_API_KEY تنظیم کړئ. په Google Cloud کې Maps JavaScript API، Places API (New)، او Geocoding API فعال کړئ، بلینګ او د ویب‌سایټ محدودیتونه تنظیم کړئ. کیلي commit مه کوئ.",
-    "map_loading": "Google Maps بارېږي...",
-    "search_failed": "Google Maps د مرکزونو لټون بشپړ نه کړ. API key، فعال APIs، بلینګ او شبکه وګورئ.",
+    "subtitle": "له ټریاژ وروسته په OpenStreetMap کې نږدې روغتونونه او کلینیکونه ولټوئ.",
+    "search_failed": "د نږدې روغتیايي مرکزونو لټون بشپړ نه شو. د انټرنېټ اړیکه وګورئ او بیا هڅه وکړئ.",
+    "warning_osm_unavailable": "د OpenStreetMap لټون لنډمهاله نه دی چمتو. د ځايي ډایرکټرۍ پایلې ښايي بیا هم ښکاره شي.",
+    "warning_directory_unavailable": "د ځايي روغتیايي مرکزونو ډایرکټري لنډمهاله نه ده چمتو. د OpenStreetMap پایلې ښايي بیا هم ښکاره شي.",
     "use_current_location": "زما ځای ته نږدې ولټوئ",
     "search_manually": "د ښار یا پتې له مخې ولټوئ",
     "location_placeholder": "بېلګه: لاهور، پاکستان",
@@ -163,14 +163,12 @@
     "results_title": "نږدې روغتیايي مرکزونه",
     "current_location": "د لټون ځای",
     "radius": "د ۵ کیلومترو دننه",
-    "map_label": "د نږدې روغتیايي مرکزونو نقشه",
-    "no_results": "د ۵ کیلومترو دننه کوم مرکز ونه موندل شو. په نقشه کې ښايي ټول نږدې مرکزونه نه وي.",
-    "google_fallback": "په Google Maps کې روغتونونه ولټوئ",
-    "address_unavailable": "په نقشه کې پته نشته.",
+    "no_results": "د ۵ کیلومترو دننه کوم مرکز ونه موندل شو. په OpenStreetMap کې ښايي ټول نږدې مرکزونه نه وي.",
+    "address_unavailable": "د روغتیايي مرکز په معلوماتو کې پته نشته.",
     "distance": "{{distance}} کیلومتره مستقیم واټن",
     "directions": "لارښوونې ترلاسه کړئ",
     "call": "زنګ ووهئ",
-    "data_note": "د مرکزونو او نقشې معلومات د Google Maps دي او نیمګړي یا زاړه کېدای شي. واټن مستقیم دی، د موټر چلولو واټن نه دی. د پرانیستې یا کارکوونکو حالت نه دی تایید شوی."
+    "data_note": "د روغتیايي مرکزونو معلومات د OpenStreetMap او د Sehat Awaaz ډایرکټرۍ څخه دي او نیمګړي یا زاړه کېدای شي. واټن مستقیم دی، د موټر چلولو واټن نه دی. د پرانیستې یا کارکوونکو حالت نه دی تایید شوی."
   },
 
   "history": {

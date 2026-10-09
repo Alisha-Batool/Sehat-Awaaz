@@ -68,4 +68,13 @@ export const emergencyApi = {
   guidance: (category) => api.get(`/emergency/guidance/${category}`),
 };
 
+// Nearby facility search and Pakistan-only location lookup
+export const facilitiesApi = {
+  nearby: (latitude, longitude, radius = 5, type = 'all') =>
+    api.get('/facilities/nearby', {
+      params: { lat: latitude, lng: longitude, radius, type },
+    }),
+  geocode: (query) => api.get('/facilities/geocode', { params: { q: query } }),
+};
+
 export default api;

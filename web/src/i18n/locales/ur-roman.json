@@ -147,10 +147,10 @@
   },
 
   "facilities": {
-    "subtitle": "Triage ke baad Google Maps mein qareebi hospitals aur clinics talaash karein.",
-    "api_key_required": "App mein Google Map chalu karne ke liye web/.env.local mein VITE_GOOGLE_MAPS_API_KEY configure karein. Google Cloud mein Maps JavaScript API, Places API (New), aur Geocoding API enable karein, billing aur website restrictions lagayein. Key commit na karein.",
-    "map_loading": "Google Maps load ho raha hai...",
-    "search_failed": "Google Maps facilities talaash nahi kar saka. API key, enabled APIs, billing aur network check karein.",
+    "subtitle": "Triage ke baad OpenStreetMap mein qareebi hospitals aur clinics talaash karein.",
+    "search_failed": "Qareebi facilities ki talaash mukammal nahi ho saki. Internet connection check karein aur dobara koshish karein.",
+    "warning_osm_unavailable": "OpenStreetMap search aarzi tor par dastiyab nahi. Local directory ke results phir bhi dikhaye ja sakte hain.",
+    "warning_directory_unavailable": "Local facilities directory aarzi tor par dastiyab nahi. OpenStreetMap ke results phir bhi dikhaye ja sakte hain.",
     "use_current_location": "Meri location ke qareeb talaash karein",
     "search_manually": "Shehar ya address se talaash karein",
     "location_placeholder": "Misaal: Lahore, Pakistan",
@@ -163,14 +163,12 @@
     "results_title": "Qareebi sehat ki sahuliyaat",
     "current_location": "Search location",
     "radius": "5 km ke andar",
-    "map_label": "Qareebi sehat ki sahuliyaat ka naqsha",
-    "no_results": "5 km ke andar koi sahulat nahi mili. Naqshay mein har qareebi sahulat shamil nahi ho sakti.",
-    "google_fallback": "Google Maps mein hospitals talaash karein",
-    "address_unavailable": "Naqshay ke data mein address dastiyab nahi.",
+    "no_results": "5 km ke andar koi sahulat nahi mili. OpenStreetMap ke data mein har qareebi sahulat shamil nahi ho sakti.",
+    "address_unavailable": "Facility data mein address dastiyab nahi.",
     "distance": "{{distance}} km seedha faasla",
     "directions": "Rasta dekhein",
     "call": "Call karein",
-    "data_note": "Facilities aur map ka data Google Maps se hai aur na-mukammal ya purana ho sakta hai. Faasla seedha hai, driving ka nahi. Khulne ya staff ki mojoodgi ki tasdeeq nahi ki gayi."
+    "data_note": "Facilities ki maloomat OpenStreetMap aur Sehat Awaaz directory se hai aur na-mukammal ya purani ho sakti hai. Faasla seedha hai, driving ka nahi. Khulne ya staff ki mojoodgi ki tasdeeq nahi ki gayi."
   },
 
   "history": {

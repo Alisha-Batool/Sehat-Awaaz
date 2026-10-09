@@ -147,10 +147,10 @@
   },
 
   "facilities": {
-    "subtitle": "Search Google Maps for nearby hospitals and clinics after your triage result.",
-    "api_key_required": "To enable the in-app Google Map, configure VITE_GOOGLE_MAPS_API_KEY in web/.env.local. Enable Maps JavaScript API, Places API (New), and Geocoding API in Google Cloud with billing and website restrictions. Do not commit your key.",
-    "map_loading": "Loading Google Maps...",
-    "search_failed": "Google Maps could not complete the facility search. Check your API key, enabled APIs, billing, and network connection.",
+    "subtitle": "Search OpenStreetMap for nearby hospitals and clinics after your triage result.",
+    "search_failed": "The facility search could not be completed. Please check your connection and try again.",
+    "warning_osm_unavailable": "OpenStreetMap search is temporarily unavailable. Some directory results may still be shown.",
+    "warning_directory_unavailable": "The local facility directory is temporarily unavailable. OpenStreetMap results may still be shown.",
     "use_current_location": "Find Near My Location",
     "search_manually": "Search by city or address",
     "location_placeholder": "For example: Lahore, Pakistan",
@@ -163,14 +163,12 @@
     "results_title": "Nearby healthcare facilities",
     "current_location": "Search location",
     "radius": "Within 5 km",
-    "map_label": "Map of nearby healthcare facilities",
-    "no_results": "No facilities were found within 5 km. This map may not include every nearby facility.",
-    "google_fallback": "Search hospitals in Google Maps",
-    "address_unavailable": "Address not available in map data.",
+    "no_results": "No facilities were found within 5 km. OpenStreetMap data may not include every nearby facility.",
+    "address_unavailable": "Address not available in facility data.",
     "distance": "{{distance}} km straight-line distance",
     "directions": "Get Directions",
     "call": "Call",
-    "data_note": "Facility details and map data are provided by Google Maps and may be incomplete or out of date. Distance is straight-line, not driving distance. No opening or staffing status is verified."
+    "data_note": "Facility information is from OpenStreetMap and the Sehat Awaaz directory and may be incomplete or out of date. Distance is straight-line, not driving distance. No opening or staffing status is verified."
   },
 
   "history": {
