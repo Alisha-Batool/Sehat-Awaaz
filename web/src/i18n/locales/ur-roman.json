@@ -59,16 +59,125 @@
     "clinic_title": "Clinic jayein",
     "home_care_title": "Ghar par dekh bhaal",
     "call_now": "Abhi 1122 par call karein",
-    "find_clinic": "Qareebi clinic talaash karein",
+    "find_clinic": "Qareebi hospital aur clinic talaash karein",
     "home_care_tips": "Khud ki dekh bhaal",
     "watch_for": "In intibaahi alaamaat par nazar rakhein",
     "re_triage": "Nayi tashkhees shuru karein",
     "share": "Nateeja share karein"
   },
 
+  "nav": {
+    "home": "Home",
+    "capabilities": "Khususiyaat",
+    "find_care": "Ilaaj talaash karein",
+    "history": "Tareekh",
+    "sign_in": "Sign in",
+    "logout": "Log out",
+    "account": "Account",
+    "language": "Zaban muntakhab karein",
+    "main_navigation": "Main navigation",
+    "open_menu": "Navigation kholein",
+    "close_menu": "Navigation band karein"
+  },
+
+  "landing": {
+    "eyebrow": "Awaaz ke zariye sehat ki rehnumai",
+    "headline": "Aap ki baat tawajjo se suni jaye.",
+    "headline_accent": " Guftagu karne wali AI ke saath.",
+    "description": "Jab tabiyat theek na ho to ek aasaan pehla qadam. Apni alaamaat apne alfaaz mein batayein aur aglay qadam ki wazeh rehnumai hasil karein.",
+    "languages_label": "Dastiyab zabaanein",
+    "start_triage": "Alaamaat ka jaiza shuru karein",
+    "find_care": "Qareebi ilaaj talaash karein",
+    "not_diagnosis": "Madadgar rehnumai, tibbi tashkhees nahi",
+    "console_title": "Awaaz ka interface",
+    "console_subtitle": "Awaaz se alaamaat batane ka preview",
+    "ready": "TAYYAR",
+    "listening": "MIC CHALU",
+    "speak_prompt": "Fitri andaaz mein bolein. Aap ki awaaz isi device par rahegi.",
+    "try_prompt": "Microphone visualizer azmayein",
+    "try_mic": "Microphone azmayein",
+    "stop_mic": "Preview rokein",
+    "mic_privacy": "Is preview ke liye awaaz ka tajziya isi device par hota hai; record ya upload nahi hoti.",
+    "mic_unsupported": "Is browser mein microphone preview dastiyab nahi.",
+    "mic_denied": "Microphone ki ijazat nahi mili. Aap text se jaari rakh sakte hain.",
+    "mic_failed": "Microphone shuru nahi ho saka. Barah-e-karam check karein.",
+    "console_footer": "Aap ki zaban, aap ke alfaaz, agla wazeh qadam.",
+    "metric_label": "MIC PREVIEW",
+    "explore": "Khususiyaat dekhein",
+    "capabilities_kicker": "Logon ke liye banaya gaya",
+    "capabilities_title": "Sehat ki rehnumai jo sunne se shuru hoti hai.",
+    "capabilities_description": "Aasaan symptom triage, taake aap agla qadam chun sakein aur qareebi ilaaj dhoondh sakein.",
+    "features": {
+      "language": {
+        "title": "Apni zaban mein baat",
+        "description": "English, Urdu, Roman Urdu ya Pashto mein type ya awaaz se apni alaamaat batayein."
+      },
+      "safety": {
+        "title": "Hifazat ko tarjeeh",
+        "description": "Khatre ki alaamaat ki jaanch aur mohtaat rehnumai fori madad ki zaroorat wazeh karti hai."
+      },
+      "care": {
+        "title": "Qareebi ilaaj ki talaash",
+        "description": "Triage ke baad hospitals aur clinics talaash karein. Ilaaj ki talaash triage ki sifarish nahi badalti."
+      }
+    },
+    "bottom_prompt": "Agla qadam samajh nahi aa raha?"
+  },
+
+  "auth_modal": {
+    "eyebrow": "Aap ka Sehat Awaaz profile",
+    "login_title": "Dobara khush aamdeed",
+    "login_description": "Apna tajurba behtar banane ke liye sign in karein.",
+    "create_title": "Apna profile banayein",
+    "create_description": "Chand tafseelaat aap ke tajurbe ko aap ka banati hain.",
+    "full_name": "Poora naam",
+    "name_placeholder": "Aap ka naam",
+    "email": "Email address",
+    "password": "Password",
+    "password_placeholder": "Kam az kam 8 characters",
+    "password_error": "Kam az kam 8 characters ka password istemal karein.",
+    "name_error": "Kam az kam 2 characters ka naam darj karein.",
+    "create_account": "Account banayein",
+    "sign_in": "Sign in",
+    "have_account": "Pehle se profile hai?",
+    "no_account": "Sehat Awaaz par naye hain?",
+    "close": "Sign-in dialog band karein",
+    "demo_notice": "Yeh demo profile sirf isi device par save hota hai. Password save ya bheja nahi jata; yeh production authentication nahi.",
+    "default_name": "Dost"
+  },
+
+  "facilities": {
+    "subtitle": "Triage ke baad Google Maps mein qareebi hospitals aur clinics talaash karein.",
+    "api_key_required": "App mein Google Map chalu karne ke liye web/.env.local mein VITE_GOOGLE_MAPS_API_KEY configure karein. Google Cloud mein Maps JavaScript API, Places API (New), aur Geocoding API enable karein, billing aur website restrictions lagayein. Key commit na karein.",
+    "map_loading": "Google Maps load ho raha hai...",
+    "search_failed": "Google Maps facilities talaash nahi kar saka. API key, enabled APIs, billing aur network check karein.",
+    "use_current_location": "Meri location ke qareeb talaash karein",
+    "search_manually": "Shehar ya address se talaash karein",
+    "location_placeholder": "Misaal: Lahore, Pakistan",
+    "search": "Talaash karein",
+    "searching": "Qareebi sahuliyaat talaash ho rahi hain...",
+    "enter_location": "Talaash ke liye shehar ya address darj karein.",
+    "geolocation_unsupported": "Is browser mein location support nahi. Shehar ya address se talaash karein.",
+    "location_denied": "Location access mustarad hui. Ijazat dein ya shehar/address se talaash karein.",
+    "location_unavailable": "Aap ki location maloom nahi ho saki. Shehar ya address se talaash karein.",
+    "results_title": "Qareebi sehat ki sahuliyaat",
+    "current_location": "Search location",
+    "radius": "5 km ke andar",
+    "map_label": "Qareebi sehat ki sahuliyaat ka naqsha",
+    "no_results": "5 km ke andar koi sahulat nahi mili. Naqshay mein har qareebi sahulat shamil nahi ho sakti.",
+    "google_fallback": "Google Maps mein hospitals talaash karein",
+    "address_unavailable": "Naqshay ke data mein address dastiyab nahi.",
+    "distance": "{{distance}} km seedha faasla",
+    "directions": "Rasta dekhein",
+    "call": "Call karein",
+    "data_note": "Facilities aur map ka data Google Maps se hai aur na-mukammal ya purana ho sakta hai. Faasla seedha hai, driving ka nahi. Khulne ya staff ki mojoodgi ki tasdeeq nahi ki gayi."
+  },
+
   "history": {
     "title": "Aap ki sehat ki tareekh",
     "empty": "Abhi tak koi session nahi",
+    "demo_notice": "Yeh local demo profile triage history sync nahi karta. Account mein sessions save karne ke liye phone verification wala sign-in karein.",
+    "load_error": "Tareekh load nahi ho saki. Dobara koshish karein.",
     "delete": "Delete karein",
     "delete_all": "Tamam tareekh delete karein"
   },

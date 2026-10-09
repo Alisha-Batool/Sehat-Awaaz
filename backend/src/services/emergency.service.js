@@ -1,7 +1,3 @@
-const db = require('../config/database');
-const { DEFAULT_EMERGENCY_NUMBER } = require('../utils/constants');
-const logger = require('../utils/logger');
-
 /**
  * Emergency numbers by province/city in Pakistan
  * Static fallback — also loaded from DB

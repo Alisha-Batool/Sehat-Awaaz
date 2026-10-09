@@ -62,12 +62,6 @@ export const sessionsApi = {
   deleteAll: () => api.delete('/sessions'),
 };
 
-// Facilities API
-export const facilitiesApi = {
-  nearby: (lat, lng, radius = 10) =>
-    api.get('/facilities/nearby', { params: { lat, lng, radius } }),
-};
-
 // Emergency API
 export const emergencyApi = {
   number: (province, city) => api.get('/emergency/number', { params: { province, city } }),

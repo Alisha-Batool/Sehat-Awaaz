@@ -60,12 +60,6 @@ export default function TriageResult() {
         </>
       )}
 
-      {tier === 'clinic' && (
-        <button className="btn btn-primary btn-block" onClick={() => navigate('/clinic-finder')}>
-          {t('result.find_clinic')}
-        </button>
-      )}
-
       {tier === 'home_care' && home_care && (
         <div>
           <h3 style={{ marginTop: '16px', marginBottom: '8px' }}>{t('result.home_care_tips')}</h3>
@@ -90,6 +84,13 @@ export default function TriageResult() {
           </div>
         </div>
       )}
+
+      <button
+        className="btn btn-primary btn-block mt-md"
+        onClick={() => navigate('/clinic-finder')}
+      >
+        {t('result.find_clinic')}
+      </button>
 
       <button
         className="btn btn-ghost btn-block mt-lg"

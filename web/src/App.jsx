@@ -38,7 +38,8 @@ export default function App() {
           <SiteNav />
           <main className="app-main">
             <Routes>
-              <Route path="/" element={<LanguageSelect />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/language" element={<LanguageSelect />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/home" element={<Home />} />
               <Route path="/symptoms" element={<SymptomInput />} />

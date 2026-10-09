@@ -1,5 +1,7 @@
 const { v4: uuidv4, validate: isUuid } = require('uuid');
-const db = require('../config/database');
+const Session = require('../models/Session');
+const TriageResult = require('../models/TriageResult');
+const RedFlagRule = require('../models/RedFlagRule');
 const nluClient = require('./nlu.client');
 const auditService = require('./audit.service');
 const explanationService = require('./explanation.service');
@@ -11,7 +13,7 @@ const logger = require('../utils/logger');
 
 /**
  * Start a new triage session.
- * Flow: create session -> extract symptoms -> check completeness -> triage or clarify
+ * Flow: create session -> extract symptoms -> check red flags -> clarify or triage
  */
 async function startTriage(text, language, userId, isGuest) {
   const sessionId = uuidv4();
@@ -22,25 +24,55 @@ async function startTriage(text, language, userId, isGuest) {
   const sessionUserId = isGuest ? null : userId;
 
   // 1. Create session record
-  await db.query(
-    'INSERT INTO sessions (id, user_id, language, status) VALUES ($1, $2, $3, $4)',
-    [sessionId, sessionUserId, language, SESSION_STATUS.ACTIVE]
-  );
+  await Session.create({
+    _id: sessionId,
+    user_id: sessionUserId,
+    language,
+    status: SESSION_STATUS.ACTIVE,
+  });
 
   try {
     // 2. Extract symptoms via NLU service
     const extraction = await nluClient.extractSymptoms(text, language);
     const symptomProfile = extraction.symptom_profile;
 
-    // 3. Check if we need clarification
+    // 3. Persist the original profile and transcript immediately so it survives
+    // across clarification turns.
+    await Session.findByIdAndUpdate(sessionId, {
+      $set: {
+        symptom_profile: symptomProfile,
+        input_text: text,
+        updated_at: new Date(),
+      },
+    });
+
+    // 4. Safety-first: evaluate deterministic red flags without waiting for LLM reasoning.
+    const immediateTriage = await nluClient.evaluateRules(symptomProfile, language);
+    if (immediateTriage.rule_id) {
+      return await composeResult(sessionId, userId, isGuest, text, symptomProfile, immediateTriage, language);
+    }
+
+    // 5. Check if we need clarification
     const clarification = await nluClient.generateQuestion(symptomProfile, [], language);
 
     if (clarification.needs_clarification && clarification.turn_count < MAX_CLARIFICATION_TURNS) {
-      // Need more info — return clarifying question
-      await db.query(
-        'UPDATE sessions SET status = $1 WHERE id = $2',
-        [SESSION_STATUS.AWAITING_CLARIFICATION, sessionId]
-      );
+      // Need more info — return clarifying question and record what was asked
+      const askedQuestion = {
+        question_id: clarification.question_id,
+        answer: null,
+        turn: clarification.turn_count,
+      };
+
+      await Session.findByIdAndUpdate(sessionId, {
+        $set: {
+          status: SESSION_STATUS.AWAITING_CLARIFICATION,
+          turn_count: 0,
+          updated_at: new Date(),
+        },
+        $push: {
+          clarification_answers: askedQuestion,
+        },
+      });
 
       return {
         sessionId,
@@ -55,74 +87,239 @@ async function startTriage(text, language, userId, isGuest) {
       };
     }
 
-    // 4. Sufficient info — run triage
-    const triageResult = await nluClient.evaluateTriage(symptomProfile, language);
+    // 6. Sufficient info — run triage
+    const triageResult = await nluClient.evaluateTriage(symptomProfile, [], language);
     return await composeResult(sessionId, userId, isGuest, text, symptomProfile, triageResult, language);
 
   } catch (err) {
     logger.error(`Triage orchestration failed for session ${sessionId}: ${err.message}`);
     // Update session to indicate error
-    await db.query('UPDATE sessions SET status = $1 WHERE id = $2', ['error', sessionId]);
+    await Session.findByIdAndUpdate(sessionId, {
+      $set: {
+        status: 'error',
+        updated_at: new Date(),
+      },
+    });
     throw err;
   }
 }
 
 /**
- * Submit an answer to a clarifying question and continue triage
+ * Submit an answer to a clarifying question and continue triage.
+ * The original symptom profile and all previous answers are persisted on the
+ * session row, so this path is fully stateful and server-authoritative.
  */
 async function submitClarification(sessionId, answer, questionId) {
-  // Get session data
-  const sessionResult = await db.query(
-    'SELECT id, user_id, language, status FROM sessions WHERE id = $1',
-    [sessionId]
-  );
+  // Get full session state
+  const session = await Session.findById(sessionId).lean();
 
-  if (sessionResult.rows.length === 0) {
+  if (!session) {
     throw new Error('Session not found');
   }
 
-  const session = sessionResult.rows[0];
-
-  // For now, re-run triage with the additional answer context
-  // In a full implementation, we'd merge with existing symptom profile
-  const clarification = await nluClient.generateQuestion(
-    { clarification_answers: [{ questionId, answer }] },
-    [{ questionId, answer }],
-    session.language
-  );
-
-  if (clarification.needs_clarification && clarification.turn_count < MAX_CLARIFICATION_TURNS) {
-    return {
-      sessionId,
-      status: 'needs_clarification',
-      question: clarification.question,
-      question_id: clarification.question_id,
-      options: clarification.options || [],
-      turn: clarification.turn_count,
-      max_turns: MAX_CLARIFICATION_TURNS,
-    };
+  // If the session already completed, return the stored result instead of re-running.
+  if (session.status === SESSION_STATUS.COMPLETED) {
+    const result = await getResult(sessionId);
+    if (result) {
+      return formatCompletedResult(result, session.language);
+    }
+    throw new Error('Completed session has no stored result');
   }
 
-  // Run final triage
+  if (!session.symptom_profile) {
+    throw new Error('Session has no symptom profile');
+  }
+
+  // Reject clarify calls on sessions that never started clarification.
+  if (session.status !== SESSION_STATUS.AWAITING_CLARIFICATION) {
+    throw new Error('Session is not awaiting clarification');
+  }
+
+  const previousAnswers = session.clarification_answers || [];
+  const answeredOnly = previousAnswers.filter((a) => a.answer !== null);
+
+  // Idempotency: ignore duplicate submissions of the same question + answer.
+  const alreadyAnswered = previousAnswers.some(
+    (a) => a.question_id === questionId && a.answer === answer
+  );
+  if (alreadyAnswered) {
+    // Regenerate the next question from the current accumulated state without
+    // consuming another turn or mutating the database.
+    const clarification = await nluClient.generateQuestion(
+      session.symptom_profile,
+      answeredOnly,
+      session.language
+    );
+
+    if (clarification.needs_clarification) {
+      return {
+        sessionId,
+        status: 'needs_clarification',
+        question: clarification.question,
+        question_id: clarification.question_id,
+        options: clarification.options || [],
+        turn: clarification.turn_count,
+        max_turns: MAX_CLARIFICATION_TURNS,
+      };
+    }
+
+    // No more questions needed — fall through to final triage.
+    const triageResult = await nluClient.evaluateTriage(
+      session.symptom_profile,
+      answeredOnly,
+      session.language
+    );
+
+    const isGuest = session.user_id === null;
+    return await composeResult(
+      sessionId,
+      session.user_id,
+      isGuest,
+      session.input_text || '',
+      session.symptom_profile,
+      triageResult,
+      session.language
+    );
+  }
+
+  // Record the answer. Replace the placeholder entry that recorded the asked question.
+  const answeredIndex = previousAnswers.findIndex(
+    (a) => a.question_id === questionId && a.answer === null
+  );
+
+  const newAnswer = {
+    question_id: questionId,
+    answer,
+    turn: session.turn_count,
+  };
+
+  let updatedAnswers;
+  if (answeredIndex >= 0) {
+    updatedAnswers = [
+      ...previousAnswers.slice(0, answeredIndex),
+      newAnswer,
+      ...previousAnswers.slice(answeredIndex + 1),
+    ];
+  } else {
+    updatedAnswers = [...previousAnswers, newAnswer];
+  }
+
+  const newTurnCount = session.turn_count + 1;
+
+  await Session.findByIdAndUpdate(sessionId, {
+    $set: {
+      clarification_answers: updatedAnswers,
+      turn_count: newTurnCount,
+      updated_at: new Date(),
+    },
+  });
+
+  const answeredOnlyUpdated = updatedAnswers.filter((a) => a.answer !== null);
+  const isGuest = session.user_id === null;
+
+  // Evaluate triage after every answer so newly revealed red flags (e.g. dyspnea
+  // at rest, thunderclap headache) short-circuit immediately instead of waiting
+  // for the max-turn budget to expire.
   const triageResult = await nluClient.evaluateTriage(
-    { clarification_answers: [{ questionId, answer }] },
+    session.symptom_profile,
+    answeredOnlyUpdated,
     session.language
   );
 
-  return await composeResult(sessionId, session.user_id, false, '', {}, triageResult, session.language);
+  if (triageResult.rule_id) {
+    return await composeResult(
+      sessionId,
+      session.user_id,
+      isGuest,
+      session.input_text || '',
+      session.symptom_profile,
+      triageResult,
+      session.language
+    );
+  }
+
+  // Ask the next question if we still have turns left.
+  if (newTurnCount < MAX_CLARIFICATION_TURNS) {
+    const clarification = await nluClient.generateQuestion(
+      session.symptom_profile,
+      answeredOnlyUpdated,
+      session.language
+    );
+
+    if (clarification.needs_clarification) {
+      const nextQuestion = {
+        question_id: clarification.question_id,
+        answer: null,
+        turn: clarification.turn_count,
+      };
+
+      await Session.findByIdAndUpdate(sessionId, {
+        $push: {
+          clarification_answers: nextQuestion,
+        },
+        $set: {
+          updated_at: new Date(),
+        },
+      });
+
+      return {
+        sessionId,
+        status: 'needs_clarification',
+        question: clarification.question,
+        question_id: clarification.question_id,
+        options: clarification.options || [],
+        turn: clarification.turn_count,
+        max_turns: MAX_CLARIFICATION_TURNS,
+      };
+    }
+  }
+
+  // No red flag fired and no more questions — use the already-evaluated result.
+  return await composeResult(
+    sessionId,
+    session.user_id,
+    isGuest,
+    session.input_text || '',
+    session.symptom_profile,
+    triageResult,
+    session.language
+  );
 }
 
 /**
  * Get the result for a completed session
  */
 async function getResult(sessionId) {
-  const result = await db.query(
-    `SELECT tr.*, s.language FROM triage_results tr
-     JOIN sessions s ON s.id = tr.session_id
-     WHERE tr.session_id = $1`,
-    [sessionId]
-  );
-  return result.rows[0] || null;
+  const result = await TriageResult.findOne({
+    session_id: sessionId,
+  }).lean();
+
+  if (!result) return null;
+
+  const session = await Session.findById(sessionId)
+    .select('language')
+    .lean();
+
+  if (!session) return null;
+
+  return {
+    ...result,
+    session_id: result.session_id,
+    language: session.language,
+  };
+}
+
+function formatCompletedResult(result, language) {
+  return {
+    sessionId: result.session_id,
+    status: 'completed',
+    tier: result.tier,
+    explanation: result.explanation,
+    confidence: result.confidence,
+    source: result.rule_id ? 'rule' : 'llm',
+    rule_id: result.rule_id,
+    disclaimer: getDisclaimer(language),
+  };
 }
 
 /**
@@ -138,8 +335,8 @@ async function resolveRuleId(ruleKey) {
   if (!ruleKey) return null;
   const key = String(ruleKey);
   if (!isUuid(key)) return null;
-  const result = await db.query('SELECT id FROM red_flag_rules WHERE id = $1', [key]);
-  return result.rows.length > 0 ? key : null;
+  const rule = await RedFlagRule.findById(key).select('_id').lean();
+  return rule ? key : null;
 }
 
 /**
@@ -161,14 +358,24 @@ async function composeResult(sessionId, userId, isGuest, inputText, symptomProfi
   const explanation = explanationService.generate(tier, rationale, language);
 
   // Save triage result
-  await db.query(
-    `INSERT INTO triage_results (session_id, tier, rule_id, rationale, confidence, explanation, rule_version, model_version)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-    [sessionId, tier, ruleId, rationale, confidence, explanation, ruleVersion, modelVersion]
-  );
+  await TriageResult.create({
+    session_id: sessionId,
+    tier,
+    rule_id: ruleId,
+    rationale,
+    confidence,
+    explanation,
+    rule_version: ruleVersion,
+    model_version: modelVersion,
+  });
 
   // Mark session as completed
-  await db.query('UPDATE sessions SET status = $1 WHERE id = $2', [SESSION_STATUS.COMPLETED, sessionId]);
+  await Session.findByIdAndUpdate(sessionId, {
+    $set: {
+      status: SESSION_STATUS.COMPLETED,
+      updated_at: new Date(),
+    },
+  });
 
   // Write audit log (async, don't block response)
   auditService.log({

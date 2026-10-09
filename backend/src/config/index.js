@@ -11,6 +11,9 @@ module.exports = {
     user: process.env.DB_USER || 'sehat_admin',
     password: process.env.DB_PASSWORD || 'sehat_dev_password',
   },
+  mongodbUri:
+    process.env.MONGODB_URI ||
+    'mongodb://127.0.0.1:27017/sehat_awaaz',
   jwt: {
     secret: process.env.JWT_SECRET || 'sehat-awaaz-dev-secret',
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config');
-const db = require('../config/database');
+const User = require('../models/User');
 const { generateOTP } = require('../utils/crypto');
 const logger = require('../utils/logger');
 
@@ -56,20 +56,21 @@ async function verifyOTP(phone, otp) {
   // OTP verified — clean up
   otpStore.delete(phone);
 
-  // Find or create user
-  let userResult = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
-  let userId;
+  // Find or create user in MongoDB
+  let user = await User.findOne({ phone }).select('_id');
 
-  if (userResult.rows.length === 0) {
-    const insertResult = await db.query(
-      'INSERT INTO users (phone) VALUES ($1) RETURNING id',
-      [phone]
-    );
-    userId = insertResult.rows[0].id;
-    logger.info(`New user created: ${userId}`);
-  } else {
-    userId = userResult.rows[0].id;
+  if (!user) {
+    try {
+      user = await User.create({ phone });
+      logger.info(`New user created: ${user._id}`);
+    } catch (error) {
+      // Handle two simultaneous OTP verifications for the same phone.
+      if (error.code !== 11000) throw error;
+      user = await User.findOne({ phone }).select('_id');
+      if (!user) throw error;
+    }
   }
+  const userId = user._id;
 
   // Issue tokens
   const tokens = issueTokens(userId, false);

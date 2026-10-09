@@ -38,6 +38,7 @@ Duration: {duration}
 Severity: {severity}
 Associated symptoms: {associated}
 Age group: {age_band}
+Clarification answers: {clarification_answers}
 Other notes: {notes}
 
 Respond with ONLY the JSON object."""
@@ -77,12 +78,20 @@ async def evaluate(profile: SymptomProfile, language: str = "en") -> dict:
 
 async def _llm_evaluate(profile: SymptomProfile, language: str) -> dict:
     """Run LLM-based triage evaluation."""
+    answers_text = "None"
+    if profile.clarification_answers:
+        answers_text = "; ".join(
+            f"{a.get('question_id') or a.get('questionId')}: {a.get('answer')}"
+            for a in profile.clarification_answers
+        )
+
     prompt = TRIAGE_PROMPT_TEMPLATE.format(
         symptoms=", ".join(profile.symptoms) if profile.symptoms else "Not specified",
         duration=profile.duration or "Not specified",
         severity=profile.severity or "Not specified",
         associated=", ".join(profile.associated_symptoms) if profile.associated_symptoms else "None mentioned",
         age_band=profile.age_band or "Not specified",
+        clarification_answers=answers_text,
         notes=f"Chronic conditions: {', '.join(profile.chronic_conditions) if profile.chronic_conditions else 'None mentioned'}",
     )
 

@@ -40,10 +40,25 @@ class NLUClient {
   }
 
   /**
-   * Evaluate triage: runs rule engine + LLM reasoning
+   * Evaluate triage: runs rule engine + LLM reasoning.
+   * When clarification_answers are supplied, the NLU service merges them with
+   * the original profile before evaluating rules or LLM fallback.
    */
-  async evaluateTriage(symptomProfile, language) {
-    return this.request('/api/triage-evaluate', { symptom_profile: symptomProfile, language });
+  async evaluateTriage(symptomProfile, clarificationAnswers = [], language) {
+    return this.request('/api/triage-evaluate', {
+      symptom_profile: symptomProfile,
+      clarification_answers: clarificationAnswers,
+      language,
+    });
+  }
+
+  async evaluateRules(symptomProfile, language) {
+    return this.request('/api/triage-evaluate', {
+      symptom_profile: symptomProfile,
+      clarification_answers: [],
+      language,
+      rules_only: true,
+    });
   }
 
   /**

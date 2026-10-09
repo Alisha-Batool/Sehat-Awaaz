@@ -27,4 +27,12 @@ const triageLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { apiLimiter, otpLimiter, triageLimiter };
+const facilitiesLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Too many facility searches. Please wait before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { apiLimiter, otpLimiter, triageLimiter, facilitiesLimiter };

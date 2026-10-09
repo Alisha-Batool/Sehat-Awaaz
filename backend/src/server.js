@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const config = require('./config');
+const { connectMongoDB } = require('./config/mongodb');
 const logger = require('./utils/logger');
 const { errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
@@ -55,12 +56,24 @@ app.use((req, res) => {
 // Global error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(config.port, () => {
-  logger.info(`Sehat Awaaz BFF running on port ${config.port}`, {
-    env: config.nodeEnv,
-    port: config.port,
+async function startServer() {
+  await connectMongoDB();
+
+  app.listen(config.port, () => {
+    logger.info(`Sehat Awaaz BFF running on port ${config.port}`, {
+      env: config.nodeEnv,
+      port: config.port,
+    });
   });
-});
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    logger.error('Failed to start Sehat Awaaz BFF', {
+      message: error.message,
+    });
+    process.exit(1);
+  });
+}
 
 module.exports = app;

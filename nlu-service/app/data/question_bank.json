@@ -1,91 +1,331 @@
 {
+  "version": 2,
   "questions": [
     {
+      "key": "breathing_context",
+      "priority": 20,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["difficulty_breathing", "shortness_of_breath"]
+      },
+      "question_text": {
+        "en": "When does the breathing difficulty happen?",
+        "ur": "سانس کی تکلیف کب ہوتی ہے؟",
+        "ur-roman": "Saans ki takleef kab hoti hai?",
+        "ps": "ساه اخیستل کله ستونزمنوي?"
+      },
+      "options": [
+        {"value": "at_rest", "en": "Even when resting", "ur": "آرام کرتے وقت بھی", "ur-roman": "Aaram karte waqt bhi", "ps": "حتی د آرام په وخت کې"},
+        {"value": "on_exertion", "en": "Only with activity", "ur": "صرف کام کرتے وقت", "ur-roman": "Sirf kaam karte waqt", "ps": "یوازې د فعالیت سره"},
+        {"value": "lying_down", "en": "When lying down", "ur": "لیٹتے وقت", "ur-roman": "Let-te waqt", "ps": "کله چې درېږي"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "at_rest": {"symptom_keys": ["at_rest"]},
+        "on_exertion": {"symptom_keys": ["on_exertion"]},
+        "lying_down": {"symptom_keys": ["lying_down"]}
+      }
+    },
+    {
+      "key": "chest_pain_radiation",
+      "priority": 20,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["chest_pain"]
+      },
+      "question_text": {
+        "en": "Does the chest pain spread to any of these areas?",
+        "ur": "کیا سینے کا درد ان میں سے کسی جگہ تک پھیلتا ہے؟",
+        "ur-roman": "Kya seene ka dard in mein se kisi jagah tak phailta hai?",
+        "ps": "ایا سینې درد په دې سیمو کې خپریږي?"
+      },
+      "options": [
+        {"value": "arm", "en": "Arm or shoulder", "ur": "بازو یا کندھا", "ur-roman": "Bazu ya kandha", "ps": "بازو یا اوږه"},
+        {"value": "jaw", "en": "Jaw or neck", "ur": "جبڑا یا گردن", "ur-roman": "Jabda ya gardan", "ps": "ښيښه یا غاړه"},
+        {"value": "back", "en": "Back", "ur": "پیٹھ", "ur-roman": "Peeth", "ps": "شا"},
+        {"value": "none", "en": "No, it stays in the chest", "ur": "نہیں، یہ سینے میں رہتا ہے", "ur-roman": "Nahin, yeh seene mein rehta hai", "ps": "نه، دا په سینه کې پاتې کیږي"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "arm": {"symptom_keys": ["radiating_to_arm"]},
+        "jaw": {"symptom_keys": ["radiating_to_jaw"]},
+        "back": {"symptom_keys": ["radiating_to_back"]}
+      }
+    },
+    {
+      "key": "chest_pain_associated",
+      "priority": 19,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["chest_pain"]
+      },
+      "question_text": {
+        "en": "Are any of these happening with the chest pain?",
+        "ur": "کیا سینے کے درد کے ساتھ یہ میں سے کچھ ہو رہا ہے؟",
+        "ur-roman": "Kya seene ke dard ke saath yeh mein se kuch ho raha hai?",
+        "ps": "ایا د سینې درد سره یو له دې حالاتو سره مخ یاست?"
+      },
+      "options": [
+        {"value": "sweating", "en": "Cold sweat", "ur": "ٹھنڈا پسینہ", "ur-roman": "Thanda paseena", "ps": "یخ ډیر"},
+        {"value": "nausea", "en": "Nausea or vomiting", "ur": "متلی یا الٹی", "ur-roman": "Matli ya ulti", "ps": "تهی یا قي"},
+        {"value": "breathlessness", "en": "Shortness of breath", "ur": "سانس کا پھولنا", "ur-roman": "Saans ka phoolna", "ps": "ساه بندیدو"},
+        {"value": "none", "en": "None of these", "ur": "ان میں سے کوئی نہیں", "ur-roman": "In mein se koi nahi", "ps": "هیڅ یو نه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "sweating": {"symptom_keys": ["diaphoresis"]},
+        "nausea": {"symptom_keys": ["nausea"]},
+        "breathlessness": {"symptom_keys": ["shortness_of_breath"]}
+      }
+    },
+    {
+      "key": "headache_onset",
+      "priority": 20,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["headache"]
+      },
+      "question_text": {
+        "en": "How did the headache start?",
+        "ur": "سر درد کیسے شروع ہوا؟",
+        "ur-roman": "Sar dard kaise shuru hua?",
+        "ps": "سردرد څنګه پیل شو?"
+      },
+      "options": [
+        {"value": "thunderclap", "en": "Suddenly — the worst headache of my life", "ur": "اچانک — زندگی کا سب سے شدید سر درد", "ur-roman": "Achanak — zindagi ka sab se shadeed sar dard", "ps": "ناڅاپه — د ژوند تر ټولو بد سردرد"},
+        {"value": "gradual", "en": "Gradually over hours", "ur": "گھنٹوں میں آہستہ آہستہ", "ur-roman": "Ghanton mein ahista ahista", "ps": "په اوږدو کې په تدریجي توګه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "thunderclap": {"symptom_keys": ["sudden_severe_headache"]}
+      }
+    },
+    {
+      "key": "headache_red_flags",
+      "priority": 19,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["headache"]
+      },
+      "question_text": {
+        "en": "Do you have any of these symptoms with the headache?",
+        "ur": "کیا سر درد کے ساتھ ان میں سے کوئی علامت ہے؟",
+        "ur-roman": "Kya sar dard ke saath in mein se koi alaamat hai?",
+        "ps": "ایا د سردرد سره یو له دې نښو لرئ?"
+      },
+      "options": [
+        {"value": "stiff_neck", "en": "Stiff neck", "ur": "گردن اکڑنا", "ur-roman": "Gardan akarna", "ps": "سخت غاړه"},
+        {"value": "light_sensitivity", "en": "Strong sensitivity to light", "ur": "روشنی سے شدید تکلیف", "ur-roman": "Roshni se shadeed takleef", "ps": "د رڼا sensitivite"},
+        {"value": "vision_loss", "en": "Sudden vision loss or double vision", "ur": "اچانک نظر کم ہونا یا دوہری نظر", "ur-roman": "Achanak nazar kam hona ya dohri nazar", "ps": "ناڅاپه لید کمښت یا دوه واره لید"},
+        {"value": "weakness_one_side", "en": "Weakness or numbness on one side", "ur": "ایک طرف کمزوری یا سنپن", "ur-roman": "Ek taraf kamzori ya sunpn", "ps": "په یو اړخ کې کمزوري یا بې حسي"},
+        {"value": "none", "en": "None of these", "ur": "ان میں سے کوئی نہیں", "ur-roman": "In mein se koi nahi", "ps": "هیڅ یو نه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "stiff_neck": {"symptom_keys": ["stiff_neck"]},
+        "light_sensitivity": {"symptom_keys": ["photophobia"]},
+        "vision_loss": {"symptom_keys": ["sudden_vision_loss"]},
+        "weakness_one_side": {"symptom_keys": ["sudden_weakness_one_side"]}
+      }
+    },
+    {
+      "key": "fever_temperature",
+      "priority": 18,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["fever"]
+      },
+      "question_text": {
+        "en": "Do you know your temperature?",
+        "ur": "کیا آپ کو اپنا درجہ حرارت معلوم ہے؟",
+        "ur-roman": "Kya aap ko apna darja hararat maloom hai?",
+        "ps": "ایا تاسو خپل تودوخه پوهیږئ?"
+      },
+      "options": [
+        {"value": "low_grade", "en": "Low fever (below 38.5°C)", "ur": "ہلکا بخار", "ur-roman": "Halka bukhar", "ps": "ټیټه تودوخه"},
+        {"value": "high", "en": "High fever (above 38.5°C)", "ur": "تیز بخار", "ur-roman": "Tez bukhar", "ps": "لوړه تودوخه"},
+        {"value": "very_high", "en": "Very high (above 40°C)", "ur": "بہت تیز بخار", "ur-roman": "Bohat tez bukhar", "ps": "ډیره لوړه تودوخه"},
+        {"value": "not_measured", "en": "Haven't measured", "ur": "نہیں ناپا", "ur-roman": "Nahin naapa", "ps": "اندازه نه ده کړې"}
+      ],
+      "answer_map": {
+        "high": {"symptom_keys": ["high_fever"]},
+        "very_high": {"symptom_keys": ["high_fever", "fever_over_40c"]}
+      }
+    },
+    {
+      "key": "fever_associated",
+      "priority": 17,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["fever"]
+      },
+      "question_text": {
+        "en": "Are any of these happening with the fever?",
+        "ur": "کیا بخار کے ساتھ یہ میں سے کچھ ہو رہا ہے؟",
+        "ur-roman": "Kya bukhar ke saath yeh mein se kuch ho raha hai?",
+        "ps": "ایا د تودوخې سره یو له دې حالاتو سره مخ یاست?"
+      },
+      "options": [
+        {"value": "confusion", "en": "Confusion or unusual sleepiness", "ur": "گہری نیند یا الجھن", "ur-roman": "Gehri neend ya aljhhan", "ps": "ګډوډي یا غیر معمولي خوب"},
+        {"value": "lethargy", "en": "Too weak to drink or feed", "ur": "اتنی کمزوری کہ پانی بھی نہ پی سکے", "ur-roman": "Itni kamzori ke paani bhi na pi sake", "ps": "دومره کمزوری چې اوبه هم ونښрой"},
+        {"value": "rash", "en": "Rash", "ur": "خارش یا دھبے", "ur-roman": "Kharish ya dhabbay", "ps": "پړسوب"},
+        {"value": "none", "en": "None of these", "ur": "ان میں سے کوئی نہیں", "ur-roman": "In mein se koi nahi", "ps": "هیڅ یو نه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "confusion": {"symptom_keys": ["confusion"]},
+        "lethargy": {"symptom_keys": ["lethargy", "not_drinking"]},
+        "rash": {"symptom_keys": ["rash"]}
+      }
+    },
+    {
+      "key": "fever_child_signs",
+      "priority": 17,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["fever"],
+        "age_band": ["child"]
+      },
+      "question_text": {
+        "en": "For the child with fever, which of these is true?",
+        "ur": "بخار والے بچے کے لیے ان میں سے کون سی بات درست ہے؟",
+        "ur-roman": "Bukhar wale bachay ke liye in mein se kaun si baat durust hai?",
+        "ps": "د تودوخې لرونکي ماشوم لپاره کوم یو له دې ریښتیا دی?"
+      },
+      "options": [
+        {"value": "under_3_months", "en": "Younger than 3 months", "ur": "3 ماہ سے کم عمر", "ur-roman": "3 mah se kam umar", "ps": "د 3 میاشتو څخه کم عمر"},
+        {"value": "not_drinking", "en": "Not drinking or passing urine", "ur": "پانی نہیں پی رہا یا پیشاب نہیں کر رہا", "ur-roman": "Paani nahi pi raha ya peshab nahi kar raha", "ps": "اوبه نه څښي یا ادرار نه کوي"},
+        {"value": "none", "en": "None of these", "ur": "ان میں سے کوئی نہیں", "ur-roman": "In mein se koi nahi", "ps": "هیڅ یو نه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "under_3_months": {"symptom_keys": ["age_under_3months"]},
+        "not_drinking": {"symptom_keys": ["not_drinking", "lethargy"]}
+      }
+    },
+    {
+      "key": "abdominal_vomiting",
+      "priority": 15,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["abdominal_pain", "stomach_pain", "vomiting"]
+      },
+      "question_text": {
+        "en": "Have you vomited?",
+        "ur": "کیا آپ کو الٹی ہوئی ہے؟",
+        "ur-roman": "Kya aap ko ulti hui hai?",
+        "ps": "ایا تاسو قي کړې?"
+      },
+      "options": [
+        {"value": "yes", "en": "Yes", "ur": "ہاں", "ur-roman": "Haan", "ps": "هو"},
+        {"value": "no", "en": "No", "ur": "نہیں", "ur-roman": "Nahin", "ps": "نه"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "yes": {"symptom_keys": ["vomiting"]}
+      }
+    },
+    {
+      "key": "abdominal_blood",
+      "priority": 20,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["abdominal_pain", "stomach_pain", "vomiting"]
+      },
+      "requires": {
+        "any_of": ["vomiting"]
+      },
+      "question_text": {
+        "en": "Is there blood in your vomit or stool?",
+        "ur": "کیا الٹی یا پاخانے میں خون ہے؟",
+        "ur-roman": "Kya ulti ya paakhane mein khoon hai?",
+        "ps": "ایا ستاسو په قي یا ګولۍ کې وینه شته?"
+      },
+      "options": [
+        {"value": "blood_in_vomit", "en": "Blood in vomit", "ur": "الٹی میں خون", "ur-roman": "Ulti mein khoon", "ps": "د قي په وینه"},
+        {"value": "blood_in_stool", "en": "Blood in stool", "ur": "پاخانے میں خون", "ur-roman": "Paakhane mein khoon", "ps": "د ګولۍ په وینه"},
+        {"value": "no", "en": "No blood", "ur": "خون نہیں", "ur-roman": "Khoon nahi", "ps": "وینه نشته"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "blood_in_vomit": {"symptom_keys": ["severe_bleeding", "uncontrolled"]},
+        "blood_in_stool": {"symptom_keys": ["severe_bleeding", "uncontrolled"]}
+      }
+    },
+    {
+      "key": "abdominal_severity",
+      "priority": 16,
+      "is_active": true,
+      "applies_to": {
+        "any_of": ["abdominal_pain", "stomach_pain"]
+      },
+      "question_text": {
+        "en": "How severe is the abdominal pain?",
+        "ur": "پیٹ کا درد کتنا شدید ہے؟",
+        "ur-roman": "Pait ka dard kitna shadeed hai?",
+        "ps": "د نس تیری درد څومره شدید دی?"
+      },
+      "options": [
+        {"value": "mild", "en": "Mild", "ur": "ہلکا", "ur-roman": "Halka", "ps": "کم"},
+        {"value": "moderate", "en": "Moderate", "ur": "درمیانہ", "ur-roman": "Darmiyana", "ps": "منځنۍ"},
+        {"value": "severe", "en": "Severe", "ur": "شدید", "ur-roman": "Shadeed", "ps": "شدید"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "severe": {"symptom_keys": ["severe_abdominal_pain"], "severity": "severe"}
+      }
+    },
+    {
       "key": "duration",
-      "category": "general",
       "priority": 10,
       "is_active": true,
+      "applies_to": {
+        "always": true
+      },
       "question_text": {
         "en": "How long have you had this symptom?",
         "ur": "یہ علامت کتنے عرصے سے ہے؟",
         "ur-roman": "Yeh alaamat kitne arsay se hai?",
-        "ps": "دا نښه څومره موده کیږي؟"
+        "ps": "دا نښه څومره موده کیږي?"
       },
       "options": [
-        {"value": "less_than_24h", "en": "Less than 24 hours", "ur": "24 گھنٹے سے کم"},
-        {"value": "1_3_days", "en": "1 to 3 days", "ur": "1 سے 3 دن"},
-        {"value": "more_than_3_days", "en": "More than 3 days", "ur": "3 دن سے زیادہ"},
-        {"value": "more_than_a_week", "en": "More than a week", "ur": "ایک ہفتے سے زیادہ"},
-        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں"}
-      ]
+        {"value": "less_than_24h", "en": "Less than 24 hours", "ur": "24 گھنٹے سے کم", "ur-roman": "24 ghante se kam", "ps": "د 24 ساعتونو څخه کم"},
+        {"value": "1_3_days", "en": "1 to 3 days", "ur": "1 سے 3 دن", "ur-roman": "1 se 3 din", "ps": "1 تر 3 ورځې"},
+        {"value": "more_than_3_days", "en": "More than 3 days", "ur": "3 دن سے زیادہ", "ur-roman": "3 din se zyada", "ps": "د 3 ورځو څخه زیات"},
+        {"value": "more_than_a_week", "en": "More than a week", "ur": "ایک ہفتے سے زیادہ", "ur-roman": "Ek hafte se zyada", "ps": "د یوې اونۍ څخه زیات"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "less_than_24h": {"duration": "less than 24 hours"},
+        "1_3_days": {"duration": "1 to 3 days"},
+        "more_than_3_days": {"duration": "more than 3 days"},
+        "more_than_a_week": {"duration": "more than a week"}
+      }
     },
     {
       "key": "severity",
-      "category": "general",
       "priority": 9,
       "is_active": true,
+      "applies_to": {
+        "always": true
+      },
       "question_text": {
         "en": "How severe is the pain or discomfort?",
         "ur": "درد یا تکلیف کتنی شدید ہے؟",
-        "ur-roman": "Dard ya takleef kitni shadeed hai?"
+        "ur-roman": "Dard ya takleef kitni shadeed hai?",
+        "ps": "د درد یا تکلیف کچیرتیا څومره شدیده ده?"
       },
       "options": [
-        {"value": "mild", "en": "Mild — I can manage", "ur": "ہلکا — سنبھال سکتا ہوں"},
-        {"value": "moderate", "en": "Moderate — it is bothering me", "ur": "درمیانہ — پریشان کر رہا ہے"},
-        {"value": "severe", "en": "Severe — very hard to bear", "ur": "بہت شدید — برداشت کرنا مشکل"},
-        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں"}
-      ]
-    },
-    {
-      "key": "fever_temp",
-      "category": "fever",
-      "priority": 8,
-      "is_active": true,
-      "question_text": {
-        "en": "Do you know your temperature?",
-        "ur": "کیا آپ کو اپنا درجہ حرارت معلوم ہے؟",
-        "ur-roman": "Kya aap ko apna darja hararat maloom hai?"
-      },
-      "options": [
-        {"value": "low_grade", "en": "Low fever (below 38.5°C)", "ur": "ہلکا بخار"},
-        {"value": "high", "en": "High fever (above 38.5°C)", "ur": "تیز بخار"},
-        {"value": "very_high", "en": "Very high (above 40°C)", "ur": "بہت تیز بخار"},
-        {"value": "not_measured", "en": "Haven't measured", "ur": "نہیں ناپا"}
-      ]
-    },
-    {
-      "key": "pain_location",
-      "category": "pain",
-      "priority": 10,
-      "is_active": true,
-      "question_text": {
-        "en": "Where exactly is the pain?",
-        "ur": "درد کہاں ہے؟",
-        "ur-roman": "Dard kahan hai?"
-      },
-      "options": [
-        {"value": "head", "en": "Head", "ur": "سر"},
-        {"value": "chest", "en": "Chest", "ur": "سینہ"},
-        {"value": "abdomen", "en": "Stomach/Belly", "ur": "پیٹ"},
-        {"value": "other", "en": "Other", "ur": "دوسری جگہ"}
-      ]
-    },
-    {
-      "key": "breathing_context",
-      "category": "breathing",
-      "priority": 9,
-      "is_active": true,
-      "question_text": {
-        "en": "When does the breathing difficulty happen?",
-        "ur": "سانس کی تکلیف کب ہوتی ہے؟",
-        "ur-roman": "Saans ki takleef kab hoti hai?"
-      },
-      "options": [
-        {"value": "at_rest", "en": "Even when resting", "ur": "آرام کرتے وقت بھی"},
-        {"value": "on_exertion", "en": "Only with activity", "ur": "صرف کام کرتے وقت"},
-        {"value": "lying_down", "en": "When lying down", "ur": "لیٹتے وقت"},
-        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں"}
-      ]
+        {"value": "mild", "en": "Mild — I can manage", "ur": "ہلکا — سنبھال سکتا ہوں", "ur-roman": "Halka — sambhal sakta hoon", "ps": "کم — زما سره اداره کیدی شي"},
+        {"value": "moderate", "en": "Moderate — it is bothering me", "ur": "درمیانہ — پریشان کر رہا ہے", "ur-roman": "Darmiyana — pareshan kar raha hai", "ps": "منځنۍ — ماته آزار رسوي"},
+        {"value": "severe", "en": "Severe — very hard to bear", "ur": "بہت شدید — برداشت کرنا مشکل", "ur-roman": "Bohat shadeed — bardasht karna mushkil", "ps": "شدید — زغمل ډیر سخت دي"},
+        {"value": "not_sure", "en": "Not sure", "ur": "پتا نہیں", "ur-roman": "Pata nahi", "ps": "ډاډه نه یم"}
+      ],
+      "answer_map": {
+        "mild": {"severity": "mild"},
+        "moderate": {"severity": "moderate"},
+        "severe": {"severity": "severe"}
+      }
     }
   ]
 }

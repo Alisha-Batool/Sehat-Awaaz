@@ -1,72 +1,98 @@
-const db = require('../config/database');
+const Session = require('../models/Session');
+const TriageResult = require('../models/TriageResult');
+const AuditLog = require('../models/AuditLog');
+const User = require('../models/User');
 const logger = require('../utils/logger');
 
-/**
- * Get all sessions for a user, sorted by date descending
- */
 async function getUserSessions(userId) {
-  const result = await db.query(
-    `SELECT s.id, s.language, s.status, s.created_at,
-            tr.tier, tr.explanation
-     FROM sessions s
-     LEFT JOIN triage_results tr ON tr.session_id = s.id
-     WHERE s.user_id = $1
-     ORDER BY s.created_at DESC`,
-    [userId]
-  );
-  return result.rows;
+  const sessions = await Session.find({ user_id: userId })
+    .sort({ created_at: -1 })
+    .lean();
+
+  const results = await TriageResult.find({
+    session_id: { $in: sessions.map((session) => session._id) },
+  }).lean();
+
+  const resultsBySession = new Map();
+  for (const result of results) {
+    const existing = resultsBySession.get(result.session_id) || [];
+    existing.push(result);
+    resultsBySession.set(result.session_id, existing);
+  }
+
+  return sessions.flatMap((session) => {
+    const sessionResults = resultsBySession.get(session._id) || [null];
+
+    return sessionResults.map((result) => ({
+      id: session._id,
+      language: session.language,
+      status: session.status,
+      created_at: session.created_at,
+      tier: result?.tier ?? null,
+      explanation: result?.explanation ?? null,
+    }));
+  });
 }
 
-/**
- * Get a single session with its triage result
- */
 async function getSession(sessionId, userId) {
-  const result = await db.query(
-    `SELECT s.id, s.language, s.status, s.created_at,
-            tr.id as result_id, tr.tier, tr.rationale, tr.confidence,
-            tr.explanation, tr.rule_version, tr.model_version
-     FROM sessions s
-     LEFT JOIN triage_results tr ON tr.session_id = s.id
-     WHERE s.id = $1 AND s.user_id = $2`,
-    [sessionId, userId]
-  );
-  return result.rows[0] || null;
+  const session = await Session.findOne({
+    _id: sessionId,
+    user_id: userId,
+  }).lean();
+
+  if (!session) return null;
+
+  const result = await TriageResult.findOne({
+    session_id: sessionId,
+  }).lean();
+
+  return {
+    id: session._id,
+    language: session.language,
+    status: session.status,
+    created_at: session.created_at,
+    result_id: result?._id ?? null,
+    tier: result?.tier ?? null,
+    rationale: result?.rationale ?? null,
+    confidence: result?.confidence ?? null,
+    explanation: result?.explanation ?? null,
+    rule_version: result?.rule_version ?? null,
+    model_version: result?.model_version ?? null,
+  };
 }
 
-/**
- * Delete a single session and its associated data
- */
 async function deleteSession(sessionId, userId) {
-  await db.query(
-    'DELETE FROM triage_results WHERE session_id = $1 AND session_id IN (SELECT id FROM sessions WHERE user_id = $2)',
-    [sessionId, userId]
-  );
-  await db.query(
-    'DELETE FROM sessions WHERE id = $1 AND user_id = $2',
-    [sessionId, userId]
-  );
+  const session = await Session.findOne({
+    _id: sessionId,
+    user_id: userId,
+  }).select('_id').lean();
+
+  if (!session) return;
+
+  await TriageResult.deleteMany({ session_id: sessionId });
+  await Session.deleteOne({ _id: sessionId, user_id: userId });
+
   logger.info(`Session ${sessionId} deleted by user ${userId}`);
 }
 
-/**
- * Delete user account and all associated data
- */
 async function deleteAccount(userId) {
-  const client = await db.pool.connect();
-  try {
-    await client.query('BEGIN');
-    await client.query('DELETE FROM triage_results WHERE session_id IN (SELECT id FROM sessions WHERE user_id = $1)', [userId]);
-    await client.query('DELETE FROM audit_logs WHERE session_id IN (SELECT id FROM sessions WHERE user_id = $1)', [userId]);
-    await client.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
-    await client.query('DELETE FROM users WHERE id = $1', [userId]);
-    await client.query('COMMIT');
-    logger.info(`Account deleted: user ${userId}`);
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  const sessions = await Session.find({ user_id: userId })
+    .select('_id')
+    .lean();
+
+  const sessionIds = sessions.map((session) => session._id);
+
+  await TriageResult.deleteMany({ session_id: { $in: sessionIds } });
+  await AuditLog.deleteMany({ session_id: { $in: sessionIds } });
+  await Session.deleteMany({ user_id: userId });
+  await User.deleteOne({ _id: userId });
+
+  logger.info(`Account deleted: user ${userId}`);
 }
 
-module.exports = { getUserSessions, getSession, deleteSession, deleteAccount };
+module.exports = {
+  getUserSessions,
+  getSession,
+  deleteSession,
+  deleteAccount,
+};

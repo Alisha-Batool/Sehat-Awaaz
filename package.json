@@ -1,0 +1,13 @@
+{
+  "name": "sehat-awaaz",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up -d --wait && concurrently --kill-others -n backend,nlu,web -c blue,magenta,green \"npm --prefix backend run dev\" \"nlu-service\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8001 --app-dir nlu-service\" \"npm --prefix web run dev\"",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose stop postgres"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

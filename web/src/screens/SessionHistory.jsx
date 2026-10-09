@@ -2,20 +2,35 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { sessionsApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SessionHistory() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!user?.isDemo);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
+    if (user?.isDemo) return undefined;
+    let active = true;
     sessionsApi
       .list()
-      .then(({ data }) => setSessions(data.sessions || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+      .then(({ data }) => {
+        if (active) setSessions(data.sessions || []);
+      })
+      .catch((error) => {
+        console.error('Could not load session history', error);
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user?.isDemo]);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this session?')) return;
@@ -39,9 +54,16 @@ export default function SessionHistory() {
 
       {loading && <div className="spinner" />}
 
-      {!loading && sessions.length === 0 && (
+      {!loading && loadError && (
         <div className="card text-center">
-          <p className="text-muted">{t('history.empty')}</p>
+          <p className="text-muted">{t('history.load_error')}</p>
+        </div>
+      )}
+      {!loading && !loadError && sessions.length === 0 && (
+        <div className="card text-center">
+          <p className="text-muted">
+            {user?.isDemo ? t('history.demo_notice') : t('history.empty')}
+          </p>
         </div>
       )}
 

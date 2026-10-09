@@ -1,19 +1,19 @@
 """
 Clarification question generator.
 Determines if the symptom profile is sufficient for triage, and if not,
-generates the single most informative follow-up question.
+selects the single most informative follow-up question from a clinician-reviewed
+question bank. Symptom-dependent gating ensures headache sessions never receive
+breathing questions, and red-flag questions are asked before generic ones.
 
-Uses a clinician-reviewed question bank — the LLM selects/adapts from templates,
-not free-generating from scratch. Max 4 clarification turns per session.
+Max 3 clarification turns per session.
 """
 
 import json
 from pathlib import Path
-from app.services import llm_client
-from app.models.schemas import SymptomProfile
+from app.services import profile_merger
 
 QUESTIONS_FILE = Path(__file__).parent.parent / "data" / "question_bank.json"
-MAX_TURNS = 4
+MAX_TURNS = 3
 
 _questions_cache: list[dict] = []
 
@@ -22,12 +22,62 @@ def load_questions():
     global _questions_cache
     try:
         with open(QUESTIONS_FILE, "r", encoding="utf-8") as f:
-            _questions_cache = json.load(f).get("questions", [])
+            data = json.load(f)
+            _questions_cache = data.get("questions", [])
     except FileNotFoundError:
         _questions_cache = []
 
 
 load_questions()
+
+
+def _question_key(answer_entry: dict) -> str | None:
+    return answer_entry.get("question_id") or answer_entry.get("questionId") or answer_entry.get("question_key")
+
+
+def _was_answered(question_key: str, previous_answers: list[dict]) -> bool:
+    return any(_question_key(a) == question_key for a in previous_answers)
+
+
+def _applies_to(profile: dict, applies_to: dict) -> bool:
+    if applies_to.get("always"):
+        return True
+
+    symptom_keys = set(profile.get("symptom_keys", []))
+    any_of = applies_to.get("any_of", [])
+    if any_of and not any(k in symptom_keys for k in any_of):
+        return False
+
+    all_of = applies_to.get("all_of", [])
+    if all_of and not all(k in symptom_keys for k in all_of):
+        return False
+
+    age_band = profile.get("age_band")
+    allowed_age_bands = applies_to.get("age_band", [])
+    if allowed_age_bands and age_band not in allowed_age_bands:
+        return False
+
+    return True
+
+
+def _requirements_met(profile: dict, requires: dict | None) -> bool:
+    if not requires:
+        return True
+
+    symptom_keys = set(profile.get("symptom_keys", []))
+    any_of = requires.get("any_of", [])
+    if any_of and not any(k in symptom_keys for k in any_of):
+        return False
+
+    all_of = requires.get("all_of", [])
+    if all_of and not all(k in symptom_keys for k in all_of):
+        return False
+
+    return True
+
+
+def _localize(text_obj: dict, language: str) -> str:
+    return text_obj.get(language) or text_obj.get("ur-roman") or text_obj.get("en", "")
 
 
 async def generate_question(
@@ -59,31 +109,31 @@ async def generate_question(
             "turn_count": turn_count,
         }
 
-    # Check what key information is missing
-    symptom_keys = profile.get("symptom_keys", [])
-    severity = profile.get("severity")
-    duration = profile.get("duration")
+    # Merge answer-derived keys so gating sees the current clinical picture.
+    merged_profile = profile_merger.merge(profile, previous_answers)
 
-    # Determine which question categories are needed
-    needed_categories = []
+    answered_keys = {_question_key(a) for a in previous_answers}
 
-    # Always need duration if missing
-    if not duration and not _was_answered("duration", previous_answers):
-        needed_categories.append("general")
+    candidates = []
+    for question in _questions_cache:
+        if not question.get("is_active", True):
+            continue
 
-    # Always need severity if missing
-    if not severity and not _was_answered("severity", previous_answers):
-        needed_categories.append("general")
+        key = question.get("key")
+        if key in answered_keys:
+            continue
 
-    # Symptom-specific questions
-    if "fever" in symptom_keys and not _was_answered("fever_temp", previous_answers):
-        needed_categories.append("fever")
-    if any(k in symptom_keys for k in ["chest_pain", "abdominal_pain", "headache"]) and not _was_answered("pain_location", previous_answers):
-        needed_categories.append("pain")
-    if "difficulty_breathing" in symptom_keys and not _was_answered("breathing_context", previous_answers):
-        needed_categories.append("breathing")
+        applies_to = question.get("applies_to", {})
+        if not _applies_to(merged_profile, applies_to):
+            continue
 
-    if not needed_categories:
+        requires = question.get("requires")
+        if not _requirements_met(merged_profile, requires):
+            continue
+
+        candidates.append(question)
+
+    if not candidates:
         return {
             "needs_clarification": False,
             "question": None,
@@ -92,69 +142,22 @@ async def generate_question(
             "turn_count": turn_count,
         }
 
-    # Find the highest-priority unanswered question from the bank
-    question = _find_best_question(needed_categories, previous_answers, language)
-
-    if question:
-        return {
-            "needs_clarification": True,
-            "question": question["text"],
-            "question_id": question["key"],
-            "options": question.get("options", []),
-            "turn_count": turn_count + 1,
-        }
-
-    return {
-        "needs_clarification": False,
-        "question": None,
-        "question_id": None,
-        "options": [],
-        "turn_count": turn_count,
-    }
-
-
-def _was_answered(question_key: str, previous_answers: list) -> bool:
-    """Check if a question was already answered in previous turns."""
-    return any(
-        a.get("questionId") == question_key or a.get("question_key") == question_key
-        for a in previous_answers
-    )
-
-
-def _find_best_question(categories: list[str], previous_answers: list, language: str) -> dict | None:
-    """Find the highest-priority question from the bank for the needed categories."""
-    answered_keys = {
-        a.get("questionId") or a.get("question_key")
-        for a in previous_answers
-    }
-
-    candidates = [
-        q for q in _questions_cache
-        if q.get("category") in categories
-        and q.get("key") not in answered_keys
-        and q.get("is_active", True)
-    ]
-
-    if not candidates:
-        return None
-
-    # Sort by priority (higher = more important)
+    # Higher priority = more urgent red-flag questions first
     candidates.sort(key=lambda q: q.get("priority", 0), reverse=True)
-
     best = candidates[0]
-    question_text = best.get("question_text", {})
-    text = question_text.get(language, question_text.get("en", ""))
 
+    question_text = _localize(best.get("question_text", {}), language)
     options = []
     for opt in best.get("options", []):
-        opt_text = opt.get(language, opt.get("en", ""))
         options.append({
             "value": opt.get("value"),
-            "label": opt_text,
+            "label": _localize(opt, language),
         })
 
     return {
-        "key": best.get("key"),
-        "text": text,
+        "needs_clarification": True,
+        "question": question_text,
+        "question_id": best.get("key"),
         "options": options,
+        "turn_count": turn_count + 1,
     }

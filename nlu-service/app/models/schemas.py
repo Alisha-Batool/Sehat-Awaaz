@@ -25,6 +25,8 @@ class SymptomProfile(BaseModel):
     medications: list[str] = Field(default_factory=list)
     # Normalized symptom keys for rule engine matching
     symptom_keys: list[str] = Field(default_factory=list, description="Normalized keys for rule matching")
+    # Accumulated clarification answers from the multi-turn flow
+    clarification_answers: list[dict] = Field(default_factory=list)
 
 
 class ExtractionRequest(BaseModel):
@@ -38,7 +40,9 @@ class ExtractionResponse(BaseModel):
 
 class TriageRequest(BaseModel):
     symptom_profile: dict
+    clarification_answers: list[dict] = Field(default_factory=list)
     language: str = "en"
+    rules_only: bool = False
 
 
 class TriageResponse(BaseModel):

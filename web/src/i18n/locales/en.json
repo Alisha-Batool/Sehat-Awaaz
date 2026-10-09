@@ -59,16 +59,125 @@
     "clinic_title": "Visit a Clinic",
     "home_care_title": "Home Care Guidance",
     "call_now": "Call 1122 Now",
-    "find_clinic": "Find Nearby Clinics",
+    "find_clinic": "Find Nearby Hospitals & Clinics",
     "home_care_tips": "Self-Care Tips",
     "watch_for": "Watch for these warning signs",
     "re_triage": "Start New Assessment",
     "share": "Share Result"
   },
 
+  "nav": {
+    "home": "Home",
+    "capabilities": "Capabilities",
+    "find_care": "Find care",
+    "history": "History",
+    "sign_in": "Sign in",
+    "logout": "Log out",
+    "account": "Account",
+    "language": "Choose language",
+    "main_navigation": "Main navigation",
+    "open_menu": "Open navigation",
+    "close_menu": "Close navigation"
+  },
+
+  "landing": {
+    "eyebrow": "VOICE-FIRST HEALTH GUIDANCE",
+    "headline": "Care, heard clearly.",
+    "headline_accent": " Powered by conversational AI.",
+    "description": "A calmer first step when you are not feeling your best. Share symptoms in your own words and get clear guidance on what to do next.",
+    "languages_label": "Languages supported",
+    "start_triage": "Start triage",
+    "find_care": "Find nearby care",
+    "not_diagnosis": "Helpful guidance, not a medical diagnosis",
+    "console_title": "Live voice interface",
+    "console_subtitle": "A preview of hands-free symptom input",
+    "ready": "READY",
+    "listening": "MIC ACTIVE",
+    "speak_prompt": "Speak naturally. Your voice stays on this device.",
+    "try_prompt": "Try the microphone visualizer",
+    "try_mic": "Try microphone",
+    "stop_mic": "Stop preview",
+    "mic_privacy": "Audio is analyzed locally for this visual preview; it is not recorded, uploaded, or used for triage.",
+    "mic_unsupported": "Microphone preview is not supported in this browser.",
+    "mic_denied": "Microphone permission was denied. You can continue with text instead.",
+    "mic_failed": "Could not start the microphone preview. Please check your microphone.",
+    "console_footer": "Your language. Your words. A clearer next step.",
+    "metric_label": "LOCAL MIC PREVIEW",
+    "explore": "Explore capabilities",
+    "capabilities_kicker": "BUILT AROUND PEOPLE",
+    "capabilities_title": "Healthcare guidance that starts by listening.",
+    "capabilities_description": "Accessible symptom triage that helps people choose a next step, with local care search when they need it.",
+    "features": {
+      "language": {
+        "title": "Native language support",
+        "description": "Share symptoms in English, Urdu, Roman Urdu, or Pashto—by typing or using voice input."
+      },
+      "safety": {
+        "title": "Safety-first guardrails",
+        "description": "Red-flag checks and cautious escalation help keep urgent symptoms from being treated as routine."
+      },
+      "care": {
+        "title": "Local care navigation",
+        "description": "After triage, look for nearby hospitals and clinics. Care search never changes the triage recommendation."
+      }
+    },
+    "bottom_prompt": "Not sure what to do next?"
+  },
+
+  "auth_modal": {
+    "eyebrow": "YOUR SEHAT AWAAZ PROFILE",
+    "login_title": "Welcome back",
+    "login_description": "Sign in to personalize your experience.",
+    "create_title": "Create your profile",
+    "create_description": "A few details help make your experience feel like yours.",
+    "full_name": "Full name",
+    "name_placeholder": "Your name",
+    "email": "Email address",
+    "password": "Password",
+    "password_placeholder": "At least 8 characters",
+    "password_error": "Use a password with at least 8 characters.",
+    "name_error": "Enter a name with at least 2 characters.",
+    "create_account": "Create account",
+    "sign_in": "Sign in",
+    "have_account": "Already have a profile?",
+    "no_account": "New to Sehat Awaaz?",
+    "close": "Close sign-in dialog",
+    "demo_notice": "Prototype sign-in is stored on this device only. Your password is never saved or sent; this is not production authentication.",
+    "default_name": "Friend"
+  },
+
+  "facilities": {
+    "subtitle": "Search Google Maps for nearby hospitals and clinics after your triage result.",
+    "api_key_required": "To enable the in-app Google Map, configure VITE_GOOGLE_MAPS_API_KEY in web/.env.local. Enable Maps JavaScript API, Places API (New), and Geocoding API in Google Cloud with billing and website restrictions. Do not commit your key.",
+    "map_loading": "Loading Google Maps...",
+    "search_failed": "Google Maps could not complete the facility search. Check your API key, enabled APIs, billing, and network connection.",
+    "use_current_location": "Find Near My Location",
+    "search_manually": "Search by city or address",
+    "location_placeholder": "For example: Lahore, Pakistan",
+    "search": "Search",
+    "searching": "Searching nearby facilities...",
+    "enter_location": "Enter a city or address to search.",
+    "geolocation_unsupported": "Location is not supported by this browser. Search by city or address instead.",
+    "location_denied": "Location access was denied. Allow access or search by city or address.",
+    "location_unavailable": "Could not determine your location. Search by city or address instead.",
+    "results_title": "Nearby healthcare facilities",
+    "current_location": "Search location",
+    "radius": "Within 5 km",
+    "map_label": "Map of nearby healthcare facilities",
+    "no_results": "No facilities were found within 5 km. This map may not include every nearby facility.",
+    "google_fallback": "Search hospitals in Google Maps",
+    "address_unavailable": "Address not available in map data.",
+    "distance": "{{distance}} km straight-line distance",
+    "directions": "Get Directions",
+    "call": "Call",
+    "data_note": "Facility details and map data are provided by Google Maps and may be incomplete or out of date. Distance is straight-line, not driving distance. No opening or staffing status is verified."
+  },
+
   "history": {
     "title": "Your Health History",
     "empty": "No past sessions yet",
+    "demo_notice": "This local demo profile does not sync triage history. Use the verified phone sign-in flow to save sessions to your account.",
+    "load_error": "Could not load your history. Please try again.",
     "delete": "Delete",
     "delete_all": "Delete All History"
   },
