@@ -1882,6 +1882,12 @@ a {
   font-size: 0.8rem;
 }
 
+.auth-modal-success {
+  margin: 0;
+  color: #83efb6;
+  font-size: 0.8rem;
+}
+
 .auth-demo-notice {
   margin: 17px 0 0;
   padding: 11px 12px;
@@ -1907,6 +1913,46 @@ a {
   font-weight: 700;
   background: transparent;
   cursor: pointer;
+}
+
+.auth-modal-switch a {
+  color: #7ce3ad;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-inline-link {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  color: #7ce3ad;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+}
+
+.auth-inline-link:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.auth-resend-link {
+  margin-top: 15px;
+}
+
+.auth-action-page {
+  display: grid;
+  min-height: min(72vh, 760px);
+  place-items: center;
+  padding: 28px 18px;
+}
+
+.auth-action-card h1 {
+  margin: 21px 0 5px;
+  color: #f3faf6;
+  font-size: 1.8rem;
+  letter-spacing: -0.04em;
 }
 
 .mobile-logout-button {

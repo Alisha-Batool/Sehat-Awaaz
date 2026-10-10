@@ -4,18 +4,41 @@ import { authApi } from '../services/api';
 const AuthContext = createContext(null);
 
 function getStoredUser() {
-  const storedDemoUser = localStorage.getItem('sehat_user');
   const storedBackendUser = localStorage.getItem('user');
-  const stored = storedDemoUser || storedBackendUser;
-  if (!stored) return null;
-
-  try {
-    return JSON.parse(stored);
-  } catch (error) {
-    console.error('Could not read the saved Sehat Awaaz user profile', error);
-    localStorage.removeItem(storedDemoUser ? 'sehat_user' : 'user');
+  if (!localStorage.getItem('accessToken') || !storedBackendUser) {
+    localStorage.removeItem('user');
+    localStorage.removeItem('sehat_user');
     return null;
   }
+
+  try {
+    const user = JSON.parse(storedBackendUser);
+    if (!user?.userId || user.isDemo) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('sehat_user');
+      return null;
+    }
+    localStorage.removeItem('sehat_user');
+    return user;
+  } catch (error) {
+    console.error('Could not read the saved Sehat Awaaz user profile', error);
+    localStorage.removeItem('user');
+    return null;
+  }
+}
+
+function persistUserSession(data) {
+  localStorage.setItem('accessToken', data.accessToken);
+  localStorage.setItem('refreshToken', data.refreshToken);
+  localStorage.removeItem('sehat_user');
+  const userData = {
+    userId: data.userId,
+    email: data.email,
+    name: data.name || '',
+    isGuest: false,
+  };
+  localStorage.setItem('user', JSON.stringify(userData));
+  return userData;
 }
 
 export function AuthProvider({ children }) {
@@ -28,28 +51,41 @@ export function AuthProvider({ children }) {
 
   const verify = useCallback(async (phone, otp) => {
     const { data } = await authApi.verifyOTP(phone, otp);
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.removeItem('sehat_user');
-    const userData = { userId: data.userId, isGuest: false };
-    localStorage.setItem('user', JSON.stringify(userData));
+    const userData = persistUserSession(data);
     setUser(userData);
     return data;
   }, []);
 
-  const demoLogin = useCallback((name, email) => {
-    const userData = {
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      isGuest: false,
-      isDemo: true,
-    };
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    localStorage.setItem('sehat_user', JSON.stringify(userData));
+  const register = useCallback(async (name, email, password) => {
+    const { data } = await authApi.register(name, email, password);
+    return data;
+  }, []);
+
+  const verifyEmail = useCallback(async (token) => {
+    const { data } = await authApi.verifyEmail(token);
+    return data;
+  }, []);
+
+  const resendVerification = useCallback(async (email) => {
+    const { data } = await authApi.resendVerification(email);
+    return data;
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email) => {
+    const { data } = await authApi.requestPasswordReset(email);
+    return data;
+  }, []);
+
+  const resetPassword = useCallback(async (token, password) => {
+    const { data } = await authApi.resetPassword(token, password);
+    return data;
+  }, []);
+
+  const passwordLogin = useCallback(async (email, password) => {
+    const { data } = await authApi.passwordLogin(email, password);
+    const userData = persistUserSession(data);
     setUser(userData);
-    return userData;
+    return data;
   }, []);
 
   const guestLogin = useCallback(async () => {
@@ -71,7 +107,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, verify, guestLogin, demoLogin, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      verify,
+      register,
+      passwordLogin,
+      verifyEmail,
+      resendVerification,
+      requestPasswordReset,
+      resetPassword,
+      guestLogin,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

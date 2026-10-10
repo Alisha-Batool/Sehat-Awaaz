@@ -17,6 +17,7 @@ import EmergencyAction from './screens/EmergencyAction';
 import SessionHistory from './screens/SessionHistory';
 import Disclaimer from './components/common/Disclaimer';
 import SiteNav from './components/layout/SiteNav';
+import AuthEmailAction from './components/auth/AuthEmailAction';
 
 const RTL_LANGUAGES = new Set(['ur', 'ps']);
 
@@ -102,6 +103,8 @@ export default function App() {
           <main className="app-main">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/verify-email" element={<AuthEmailAction />} />
+              <Route path="/reset-password" element={<AuthEmailAction />} />
               <Route path="/language" element={<LanguageSelect />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/home" element={<Home />} />

@@ -18,6 +18,14 @@ const otpLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many authentication attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Triage endpoint rate limit
 const triageLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -35,4 +43,4 @@ const facilitiesLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { apiLimiter, otpLimiter, triageLimiter, facilitiesLimiter };
+module.exports = { apiLimiter, otpLimiter, authLimiter, triageLimiter, facilitiesLimiter };

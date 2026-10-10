@@ -18,7 +18,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url?.startsWith('/auth/');
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       // Try refresh token
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken && !error.config._retried) {
@@ -41,6 +42,12 @@ api.interceptors.response.use(
 
 // Auth API
 export const authApi = {
+  register: (name, email, password) => api.post('/auth/register', { name, email, password }),
+  passwordLogin: (email, password) => api.post('/auth/login', { email, password }),
+  verifyEmail: (token) => api.post('/auth/verify-email', { token }),
+  resendVerification: (email) => api.post('/auth/resend-verification', { email }),
+  requestPasswordReset: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
   sendOTP: (phone) => api.post('/auth/send-otp', { phone }),
   verifyOTP: (phone, otp) => api.post('/auth/verify-otp', { phone, otp }),
   guest: () => api.post('/auth/guest'),
