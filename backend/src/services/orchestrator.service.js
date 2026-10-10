@@ -10,6 +10,7 @@ const careNavigation = require('./careNavigation.service');
 const { hashInput } = require('../utils/crypto');
 const { TRIAGE_TIERS, SESSION_STATUS, MAX_CLARIFICATION_TURNS } = require('../utils/constants');
 const logger = require('../utils/logger');
+const { performance } = require('node:perf_hooks');
 
 /**
  * Start a new triage session.
@@ -33,7 +34,9 @@ async function startTriage(text, language, userId, isGuest) {
 
   try {
     // 2. Extract symptoms via NLU service
+    const extractionStartedAt = performance.now();
     const extraction = await nluClient.extractSymptoms(text, language);
+    logger.info('Triage stage timing', { sessionId, stage: 'symptom_extraction', elapsedMs: Number((performance.now() - extractionStartedAt).toFixed(1)) });
     const symptomProfile = extraction.symptom_profile;
 
     // 3. Persist the original profile and transcript immediately so it survives
@@ -47,14 +50,17 @@ async function startTriage(text, language, userId, isGuest) {
     });
 
     // 4. Safety-first: evaluate deterministic red flags without waiting for LLM reasoning.
-    const immediateTriage = await nluClient.evaluateRules(symptomProfile, language);
+    const ruleStartedAt = performance.now();
+    const [immediateTriage, clarification] = await Promise.all([
+      nluClient.evaluateRules(symptomProfile, [], language),
+      nluClient.generateQuestion(symptomProfile, [], language),
+    ]);
+    logger.info('Triage stage timing', { sessionId, stage: 'red_flags_and_clarification', elapsedMs: Number((performance.now() - ruleStartedAt).toFixed(1)) });
     if (immediateTriage.rule_id) {
       return await composeResult(sessionId, userId, isGuest, text, symptomProfile, immediateTriage, language);
     }
 
     // 5. Check if we need clarification
-    const clarification = await nluClient.generateQuestion(symptomProfile, [], language);
-
     if (clarification.needs_clarification && clarification.turn_count < MAX_CLARIFICATION_TURNS) {
       // Need more info — return clarifying question and record what was asked
       const askedQuestion = {
@@ -88,7 +94,9 @@ async function startTriage(text, language, userId, isGuest) {
     }
 
     // 6. Sufficient info — run triage
+    const triageStartedAt = performance.now();
     const triageResult = await nluClient.evaluateTriage(symptomProfile, [], language);
+    logger.info('Triage stage timing', { sessionId, stage: 'assessment', elapsedMs: Number((performance.now() - triageStartedAt).toFixed(1)) });
     return await composeResult(sessionId, userId, isGuest, text, symptomProfile, triageResult, language);
 
   } catch (err) {
@@ -232,34 +240,26 @@ async function submitClarification(sessionId, answer, questionId) {
   const answeredOnlyUpdated = updatedAnswers.filter((a) => a.answer !== null);
   const isGuest = session.user_id === null;
 
-  // Evaluate triage after every answer so newly revealed red flags (e.g. dyspnea
-  // at rest, thunderclap headache) short-circuit immediately instead of waiting
-  // for the max-turn budget to expire.
-  const triageResult = await nluClient.evaluateTriage(
-    session.symptom_profile,
-    answeredOnlyUpdated,
-    session.language
-  );
-
-  if (triageResult.rule_id) {
-    return await composeResult(
-      sessionId,
-      session.user_id,
-      isGuest,
-      session.input_text || '',
-      session.symptom_profile,
-      triageResult,
-      session.language
-    );
-  }
-
-  // Ask the next question if we still have turns left.
+  // Intermediate turns need a separate deterministic check before returning
+  // another question. On the final turn, evaluateTriage performs that same
+  // configured rule check itself, so avoid sending the redundant NLU request.
   if (newTurnCount < MAX_CLARIFICATION_TURNS) {
-    const clarification = await nluClient.generateQuestion(
-      session.symptom_profile,
-      answeredOnlyUpdated,
-      session.language
-    );
+    const [triageResult, clarification] = await Promise.all([
+      nluClient.evaluateRules(session.symptom_profile, answeredOnlyUpdated, session.language),
+      nluClient.generateQuestion(session.symptom_profile, answeredOnlyUpdated, session.language),
+    ]);
+
+    if (triageResult.rule_id) {
+      return await composeResult(
+        sessionId,
+        session.user_id,
+        isGuest,
+        session.input_text || '',
+        session.symptom_profile,
+        triageResult,
+        session.language
+      );
+    }
 
     if (clarification.needs_clarification) {
       const nextQuestion = {
@@ -277,7 +277,7 @@ async function submitClarification(sessionId, answer, questionId) {
           $set: {
             updated_at: new Date(),
           },
-        }
+        },
       ).lean();
 
       if (!awaitingSession) {
@@ -287,7 +287,6 @@ async function submitClarification(sessionId, answer, questionId) {
         }
         throw new Error('Session is no longer awaiting clarification');
       }
-
       return {
         sessionId,
         status: 'needs_clarification',
@@ -300,14 +299,21 @@ async function submitClarification(sessionId, answer, questionId) {
     }
   }
 
-  // No red flag fired and no more questions — use the already-evaluated result.
+  // Final triage applies the configured red-flag rules before any model call.
+  const assessmentStartedAt = performance.now();
+  const finalTriageResult = await nluClient.evaluateTriage(
+    session.symptom_profile,
+    answeredOnlyUpdated,
+    session.language
+  );
+  logger.info('Triage stage timing', { sessionId, stage: 'clarification_final_assessment', elapsedMs: Number((performance.now() - assessmentStartedAt).toFixed(1)) });
   return await composeResult(
     sessionId,
     session.user_id,
     isGuest,
     session.input_text || '',
     session.symptom_profile,
-    triageResult,
+    finalTriageResult,
     session.language
   );
 }

@@ -1,6 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.models.schemas import TriageRequest, TriageResponse, SymptomProfile
-from app.services.triage_engine import evaluate
+from app.services.triage_engine import evaluate, TriageAssessmentError
 from app.services import profile_merger, rule_engine
 
 router = APIRouter()
@@ -28,5 +28,8 @@ async def triage_evaluate(request: TriageRequest):
         }
         return TriageResponse(**result)
 
-    result = await evaluate(profile, request.language)
+    try:
+        result = await evaluate(profile, request.language)
+    except TriageAssessmentError as exc:
+        raise HTTPException(status_code=503, detail="Triage assessment is temporarily unavailable") from exc
     return TriageResponse(**result)

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowDown,
   ArrowRight,
@@ -157,10 +157,17 @@ const CAPABILITIES = [
 
 export default function Home() {
   const { t } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const isAuthenticated = Boolean(user && !user.isGuest);
+
+  useEffect(() => {
+    if (!location.state?.requireLogin) return;
+    setAuthOpen(true);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const startTriage = () => {
     if (isAuthenticated) {

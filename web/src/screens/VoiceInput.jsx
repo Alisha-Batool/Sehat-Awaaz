@@ -21,6 +21,7 @@ export default function VoiceInput() {
   const shouldListenRef = useRef(false);
 
   useEffect(() => {
+    sessionStorage.removeItem('voiceConversation');
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -67,6 +68,7 @@ export default function VoiceInput() {
         'no-speech': t('voice.no_speech') || 'No speech detected. Please try again.',
         'audio-capture': t('voice.no_mic') || 'No microphone found. Please check your mic.',
         'not-allowed': t('voice.mic_denied') || 'Microphone access denied. Please allow mic in browser settings.',
+        'language-not-supported': t('voice.not_supported'),
         'network': t('voice.network_error') || 'Network error. Please check your connection.',
         'aborted': '', // User stopped, not an error
       };
@@ -117,6 +119,7 @@ export default function VoiceInput() {
       setTranscript('');
       setInterimText('');
       try {
+        sessionStorage.setItem('voiceConversation', 'true');
         recognitionRef.current.start();
         shouldListenRef.current = true;
         setListening(true);
@@ -142,6 +145,7 @@ export default function VoiceInput() {
         </div>
         <div className="card">
           <p>{t('voice.not_supported')}</p>
+          <p className="text-muted">{t('voice.files_unavailable')}</p>
         </div>
         <button
           className="btn btn-secondary btn-block mt-lg"
@@ -221,6 +225,9 @@ export default function VoiceInput() {
           {t('continue')}
         </button>
       )}
+
+      <p className="text-muted mt-md">{t('voice.privacy_notice')}</p>
+      <p className="text-muted">{t('voice.files_unavailable')}</p>
 
       <button className="btn btn-ghost btn-block mt-md" onClick={() => navigate('/home')}>
         {t('back')}

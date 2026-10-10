@@ -4,6 +4,7 @@ Extracts structured clinical variables from free text and validates against sche
 """
 
 import json
+import re
 from app.services import llm_client
 from app.models.schemas import SymptomProfile
 
@@ -90,13 +91,59 @@ KEYWORD_MAP = {
 }
 
 
+KEYWORD_MAP.update({
+    # Canonical tags used by configured red-flag rules. These are evaluated on
+    # raw text before the deterministic extraction fast path returns.
+    "shortness_of_breath": ["shortness of breath", "difficulty breathing", "breathless", "can't breathe", "cannot breathe", "saans nahi aa rahi"],
+    "at_rest": ["at rest", "while resting", "even when resting", "aaram karte waqt"],
+    "stiff_neck": ["stiff neck", "neck stiffness", "gardan akri", "gardan mein akrao"],
+    "photophobia": ["photophobia", "light sensitivity", "sensitive to light", "roshni se takleef"],
+    "sudden_weakness_one_side": ["weakness on one side", "one-sided weakness", "sudden one-sided weakness", "aik taraf kamzori"],
+    "sudden_speech_difficulty": ["sudden speech difficulty", "difficulty speaking", "slurred speech", "bolne mein mushkil"],
+    "sudden_vision_loss": ["sudden vision loss", "suddenly lost vision", "sudden loss of vision", "achanak nazar chali"],
+    "sudden_severe_headache": ["sudden severe headache", "thunderclap headache", "worst headache of my life", "zindagi ka sab se shadeed sar dard"],
+    "facial_droop": ["facial droop", "face drooping", "drooping face", "chehra latak"],
+    "uncontrolled": ["won't stop bleeding", "will not stop bleeding", "uncontrolled bleeding", "bleeding heavily", "khoon nahi ruk raha"],
+    "allergic_reaction": ["allergic reaction", "anaphylaxis", "shadeed allergy"],
+    "swelling_face_throat": ["face swelling", "throat swelling", "swollen face", "swollen throat", "gale mein soojan"],
+    "dizziness_fainting": ["dizziness", "fainting", "passed out", "chakkar", "behosh"],
+    "active_seizure": ["active seizure", "having a seizure", "seizing now", "daura par raha"],
+    "seizure_over_5min": ["seizure over 5 minutes", "seizure longer than 5 minutes", "daura paanch minute se zyada"],
+    "repeated_seizures": ["repeated seizures", "multiple seizures", "seizures one after another"],
+    "head_injury": ["head injury", "hit my head", "head trauma", "sar par chot"],
+    "loss_of_consciousness": ["loss of consciousness", "lost consciousness", "unconscious", "behosh ho gaya"],
+    "confusion": ["confusion", "confused", "disoriented", "zehni uljhan"],
+    "vomiting_repeated": ["repeated vomiting", "vomiting repeatedly", "vomited several times"],
+    "seizure": ["seizure", "convulsion", "fit", "mirgi ka daura"],
+    "high_fever": ["high fever", "very high fever", "tez bukhar", "bohat tez bukhar"],
+    "suicidal_thoughts": ["suicidal thoughts", "thinking about suicide", "want to die", "khudkushi ka khayal"],
+    "self_harm_intent": ["self harm", "self-harm", "hurt myself", "harm myself", "khud ko nuqsan"],
+    "suicide_attempt": ["suicide attempt", "attempted suicide", "tried to kill myself"],
+    "age_under_3months": ["under 3 months", "under three months", "less than 3 months", "3 mahine se kam"],
+    "fever_over_40c": ["fever over 40", "temperature over 40", "40 c fever", "104 f fever"],
+    "lethargy": ["lethargic", "very drowsy", "hard to wake", "sust"],
+    "not_drinking": ["not drinking", "unable to drink", "refusing fluids", "pani nahi pee raha"],
+    "pregnant": ["pregnant", "pregnancy", "hamila", "hamla"],
+    "severe_abdominal_pain": ["severe abdominal pain", "severe stomach pain", "shadeed pait dard"],
+    "heavy_bleeding": ["heavy bleeding", "bleeding heavily", "bohat zyada bleeding"],
+    "severe_headache_pregnancy": ["severe headache during pregnancy", "pregnant severe headache"],
+    "reduced_fetal_movement": ["reduced fetal movement", "baby is moving less", "baby stopped moving"],
+})
+
+
 def _derive_symptom_keys(text: str, symptoms: list[str]) -> set[str]:
     """Map known phrases in the raw text and symptom list to canonical keys."""
     haystack = " ".join(symptoms + [text]).lower()
     derived = set()
     for key, phrases in KEYWORD_MAP.items():
         for phrase in phrases:
-            if phrase.lower() in haystack:
+            for match in re.finditer(re.escape(phrase.lower()), haystack):
+                preceding_text = haystack[max(0, match.start() - 48):match.start()]
+                if re.search(
+                    r"\b(?:no|not|never|denies|denied|without|negative for|does not have|do not have|doesn't have|don't have)\s+(?:(?:any|a|an|the|having|experiencing|seeing|trouble|difficulty|shortness|of|breathing|or)\s+){0,4}$",
+                    preceding_text,
+                ):
+                    continue
                 derived.add(key)
                 break
     return derived

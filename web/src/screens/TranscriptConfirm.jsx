@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { triageApi } from '../services/api';
-import { analyzeSymptoms } from '../services/demoTriage';
 
 export default function TranscriptConfirm() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const transcript = sessionStorage.getItem('voiceTranscript');
@@ -21,27 +21,34 @@ export default function TranscriptConfirm() {
 
   const handleResult = (data) => {
     if (data.status === 'needs_clarification') {
+      sessionStorage.removeItem('triageResult');
       sessionStorage.setItem('triageSession', JSON.stringify(data));
       navigate('/clarify');
     } else if (data.status === 'completed') {
+      sessionStorage.removeItem('triageSession');
       sessionStorage.setItem('triageResult', JSON.stringify(data));
       navigate('/result');
+    } else {
+      setError(t('assessment_failed'));
     }
   };
 
   const handleConfirm = async () => {
     if (!text.trim()) return;
     setLoading(true);
+    setError('');
+    sessionStorage.removeItem('triageSession');
+    sessionStorage.removeItem('triageResult');
 
+    const requestStartedAt = performance.now();
     try {
       const { data } = await triageApi.start(text.trim(), i18n.language);
       handleResult(data);
-    } catch {
-      // Backend unavailable — use demo mode
-      console.warn('Backend unavailable, using demo triage mode');
-      const demoResult = analyzeSymptoms(text.trim(), i18n.language);
-      handleResult(demoResult);
+    } catch (requestError) {
+      console.error('Triage assessment request failed', requestError.response?.status ?? 'network error');
+      setError(t('assessment_failed'));
     } finally {
+      console.info(`[triage] transcript request completed in ${(performance.now() - requestStartedAt).toFixed(0)} ms`);
       setLoading(false);
     }
   };
@@ -61,6 +68,8 @@ export default function TranscriptConfirm() {
         rows={6}
         style={{ fontSize: '1.1rem', lineHeight: 1.8 }}
       />
+
+      {error && <p role="alert" style={{ color: 'var(--color-error)', marginTop: '8px' }}>{error}</p>}
 
       <button
         className="btn btn-primary btn-block mt-lg"

@@ -1,72 +1,59 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { facilitiesApi } from '../services/api';
+
+const mapsSearchUrl = (query) => {
+  const url = new URL('https://www.google.com/maps/search/');
+  url.searchParams.set('api', '1');
+  url.searchParams.set('query', query);
+  return url.toString();
+};
 
 export default function ClinicFinder() {
   const { t } = useTranslation();
-  const [facilities, setFacilities] = useState([]);
-  const [warnings, setWarnings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [location, setLocation] = useState(null);
-  const [locationLabel, setLocationLabel] = useState('');
   const [manualQuery, setManualQuery] = useState('');
-
-  const loadFacilities = async (coordinates, label = '') => {
-    setLoading(true);
-    setError('');
-    setWarnings([]);
-    setFacilities([]);
-    setLocation(coordinates);
-    setLocationLabel(label);
-    try {
-      const { data } = await facilitiesApi.nearby(
-        coordinates.latitude,
-        coordinates.longitude,
-        5,
-        'all'
-      );
-      setFacilities(data.facilities);
-      setWarnings(data.warnings || []);
-    } catch (requestError) {
-      console.error('Nearby facility search failed', requestError);
-      setError(t('facilities.search_failed'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] = useState('');
+  const [locating, setLocating] = useState(false);
 
   const handleUseCurrentLocation = () => {
     setError('');
-    setWarnings([]);
-    setLocation(null);
-    setFacilities([]);
     if (!navigator.geolocation) {
       setError(t('facilities.geolocation_unsupported'));
       return;
     }
 
-    setLoading(true);
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        loadFacilities({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        });
+      (position) => {
+        const latitude = position?.coords?.latitude;
+        const longitude = position?.coords?.longitude;
+        if (
+          !Number.isFinite(latitude) ||
+          !Number.isFinite(longitude) ||
+          latitude < -90 || latitude > 90 ||
+          longitude < -180 || longitude > 180
+        ) {
+          setError(t('facilities.location_unavailable'));
+          setLocating(false);
+          return;
+        }
+
+        window.location.assign(
+          `https://www.google.com/maps/search/hospitals/@${latitude},${longitude},14z`
+        );
       },
       (positionError) => {
-        setLoading(false);
         setError(
           positionError.code === 1
             ? t('facilities.location_denied')
             : t('facilities.location_unavailable')
         );
+        setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   };
 
-  const handleManualSearch = async (event) => {
+  const handleManualSearch = (event) => {
     event.preventDefault();
     const query = manualQuery.trim();
     if (query.length < 2) {
@@ -74,23 +61,8 @@ export default function ClinicFinder() {
       return;
     }
 
-    setLoading(true);
     setError('');
-    setWarnings([]);
-    setLocation(null);
-    setFacilities([]);
-    try {
-      const { data } = await facilitiesApi.geocode(query);
-      const coordinates = data.location;
-      await loadFacilities(
-        { latitude: coordinates.latitude, longitude: coordinates.longitude },
-        coordinates.displayName
-      );
-    } catch (requestError) {
-      console.error('Facility location search failed', requestError);
-      setLoading(false);
-      setError(t('facilities.search_failed'));
-    }
+    window.open(mapsSearchUrl(`hospitals and clinics near ${query}`), '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -101,12 +73,8 @@ export default function ClinicFinder() {
         <p>{t('facilities.subtitle')}</p>
       </div>
 
-      <button
-        className="btn btn-primary btn-block"
-        onClick={handleUseCurrentLocation}
-        disabled={loading}
-      >
-        {loading ? t('facilities.searching') : t('facilities.use_current_location')}
+      <button className="btn btn-primary btn-block" onClick={handleUseCurrentLocation} disabled={locating}>
+        {locating ? t('facilities.location_searching') : t('facilities.use_current_location')}
       </button>
 
       <div className="facility-search-divider" aria-hidden="true">
@@ -129,86 +97,14 @@ export default function ClinicFinder() {
           <button
             className="btn btn-secondary"
             type="submit"
-            disabled={loading || manualQuery.trim().length < 2}
+            disabled={manualQuery.trim().length < 2}
           >
             {t('facilities.search')}
           </button>
         </div>
       </form>
 
-      {error && (
-        <p role="alert" className="facility-search-error">
-          {error}
-        </p>
-      )}
-
-      {loading && <div className="spinner" aria-label={t('facilities.searching')} />}
-
-      {location && !loading && (
-        <>
-          {warnings.map((warning) => (
-            <p key={warning} role="status" className="facility-search-warning">
-              {t(`facilities.warning_${warning}`)}
-            </p>
-          ))}
-          <div className="facility-results-heading">
-            <h2>{t('facilities.results_title')}</h2>
-            <p className="text-muted">
-              {locationLabel || t('facilities.current_location')} · {t('facilities.radius')}
-            </p>
-          </div>
-
-          {facilities.length === 0 ? (
-            <div className="card facility-empty-state">
-              <p>{t('facilities.no_results')}</p>
-            </div>
-          ) : (
-            <div className="facility-results">
-              {facilities.map((facility) => {
-                const directionsUrl = new URL('https://www.google.com/maps/dir/');
-                directionsUrl.searchParams.set('api', '1');
-                directionsUrl.searchParams.set(
-                  'destination',
-                  `${facility.latitude},${facility.longitude}`
-                );
-                directionsUrl.searchParams.set(
-                  'origin',
-                  `${location.latitude},${location.longitude}`
-                );
-
-                return (
-                  <article key={facility.id} className="card facility-card">
-                    <div className="facility-card-heading">
-                      <div>
-                        <h3>{facility.name}</h3>
-                        <p className="text-muted facility-type">{facility.type}</p>
-                      </div>
-                      <span className="facility-distance">
-                        {t('facilities.distance', {
-                          distance: Number(facility.distance_km).toFixed(1),
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-muted facility-address">
-                      {facility.address || t('facilities.address_unavailable')}
-                    </p>
-                    <a
-                      href={directionsUrl.toString()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-secondary"
-                    >
-                      {t('facilities.directions')}
-                    </a>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-
-          <p className="facility-data-note">{t('facilities.data_note')}</p>
-        </>
-      )}
+      {error && <p role="alert" className="facility-search-error">{error}</p>}
     </div>
   );
 }

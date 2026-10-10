@@ -4,10 +4,12 @@
   "select_language": "Select your language",
   "continue": "Continue",
   "back": "Back",
+  "try_again": "Try again",
   "skip": "Skip",
   "or": "or",
   "loading": "Loading...",
   "error_generic": "Something went wrong. Please try again.",
+  "assessment_failed": "We couldn't complete the assessment. Your symptoms are still here; please try again. If you may be in immediate danger, contact local emergency services.",
 
   "onboarding": {
     "title": "How Sehat Awaaz Works",
@@ -36,7 +38,9 @@
     "no_speech": "No speech detected. Please try again.",
     "no_mic": "No microphone found. Please check your mic.",
     "mic_denied": "Microphone access denied. Please allow mic in browser settings.",
-    "network_error": "Network error. Please check your connection."
+    "network_error": "Network error. Please check your connection.",
+    "privacy_notice": "Speech recognition is handled by your browser and may send audio to its speech service. The recognized text enters triage only after you continue.",
+    "files_unavailable": "Audio file uploads and medical report analysis are unavailable."
   },
 
   "transcript": {
@@ -63,7 +67,8 @@
     "home_care_tips": "Self-Care Tips",
     "watch_for": "Watch for these warning signs",
     "re_triage": "Start New Assessment",
-    "share": "Share Result"
+    "share": "Share Result",
+    "demo_notice": "Demo result from local symptom matching - not a clinical assessment."
   },
 
   "nav": {
@@ -93,11 +98,11 @@
     "console_subtitle": "A preview of hands-free symptom input",
     "ready": "READY",
     "listening": "MIC ACTIVE",
-    "speak_prompt": "Speak naturally. Your voice stays on this device.",
+    "speak_prompt": "Speak to see microphone activity; this preview does not transcribe speech.",
     "try_prompt": "Try the microphone visualizer",
     "try_mic": "Try microphone",
     "stop_mic": "Stop preview",
-    "mic_privacy": "Audio is analyzed locally for this visual preview; it is not recorded, uploaded, or used for triage.",
+    "mic_privacy": "This visualizer analyzes microphone levels in your browser only; it does not transcribe or upload speech.",
     "mic_unsupported": "Microphone preview is not supported in this browser.",
     "mic_denied": "Microphone permission was denied. You can continue with text instead.",
     "mic_failed": "Could not start the microphone preview. Please check your microphone.",
@@ -147,11 +152,11 @@
   },
 
   "facilities": {
-    "subtitle": "Search OpenStreetMap for nearby hospitals and clinics after your triage result.",
+    "subtitle": "Search for hospitals and clinics on Google Maps after your triage result.",
     "search_failed": "The facility search could not be completed. Please check your connection and try again.",
     "warning_osm_unavailable": "OpenStreetMap search is temporarily unavailable. Some directory results may still be shown.",
     "warning_directory_unavailable": "The local facility directory is temporarily unavailable. OpenStreetMap results may still be shown.",
-    "use_current_location": "Find Near My Location",
+    "use_current_location": "Find Hospitals Near Me",
     "search_manually": "Search by city or address",
     "location_placeholder": "For example: Lahore, Pakistan",
     "search": "Search",

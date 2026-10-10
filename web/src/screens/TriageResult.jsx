@@ -1,12 +1,21 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { speakText } from '../services/browserSpeech';
 
 export default function TriageResult() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const result = JSON.parse(sessionStorage.getItem('triageResult') || '{}');
   const { tier, explanation, disclaimer, emergency, home_care, source } = result;
+
+  useEffect(() => {
+    if (sessionStorage.getItem('voiceConversation') === 'true') {
+      speakText(explanation, i18n.language);
+    }
+    return () => window.speechSynthesis?.cancel();
+  }, [explanation, i18n.language]);
 
   if (!tier) {
     navigate('/home');
@@ -41,7 +50,7 @@ export default function TriageResult() {
         <span className={`tier-badge ${config.className}`} style={{ marginTop: '12px' }}>
           {tier.replace('_', ' ').toUpperCase()}
         </span>
-        {source === 'demo' && <div className="badge-demo">Demo Mode — backend not connected</div>}
+        {source === 'demo' && <div className="badge-demo">{t('result.demo_notice')}</div>}
       </div>
 
       <div className="card mb-md">

@@ -2089,6 +2089,33 @@ a {
   }
 }
 
+.site-nav-triage .site-nav-links,
+.site-nav-triage .site-nav-cta,
+.site-nav-triage .mobile-navigation {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .site-nav.site-nav-triage .site-nav-actions {
+    display: flex;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+
+  .site-nav.site-nav-triage .mobile-nav-actions {
+    display: none;
+  }
+
+  .site-nav.site-nav-triage .profile-actions {
+    gap: 4px;
+  }
+
+  .site-nav.site-nav-triage .profile-chip span:not(.profile-avatar),
+  .site-nav.site-nav-triage .logout-button span {
+    display: none;
+  }
+}
+
 @media (max-width: 600px) {
   .site-nav {
     inset: 10px 12px auto;

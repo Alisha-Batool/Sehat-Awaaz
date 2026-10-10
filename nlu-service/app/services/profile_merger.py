@@ -45,6 +45,10 @@ def merge(profile: dict, answers: list[dict]) -> dict:
     'not_sure' and unknown question IDs are ignored.
     """
     merged = copy.deepcopy(profile)
+    # Keep the original answer records alongside derived profile fields. The
+    # triage model needs to see answers that have no profile effect (notably
+    # `not_sure`) so uncertainty is not silently mistaken for missing data.
+    merged["clarification_answers"] = copy.deepcopy(answers)
     answer_map = _load_answer_map()
 
     merged.setdefault("symptom_keys", [])

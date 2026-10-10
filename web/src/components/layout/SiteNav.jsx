@@ -27,10 +27,11 @@ export default function SiteNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
-  const [startAfterLogin, setStartAfterLogin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const isAuthenticated = Boolean(user && !user.isGuest);
+  const isTriageRoute = ['/symptoms', '/voice', '/transcript', '/clarify', '/result', '/home-care', '/emergency']
+    .includes(location.pathname);
   const activeLanguage = LANGUAGES.find((language) => language.code === i18n.resolvedLanguage)
     || LANGUAGES.find((language) => language.code === i18n.language)
     || LANGUAGES[0];
@@ -74,7 +75,6 @@ export default function SiteNav() {
 
   const closeAuth = () => {
     setAuthOpen(false);
-    setStartAfterLogin(false);
   };
   const startTriage = () => {
     setMenuOpen(false);
@@ -82,14 +82,10 @@ export default function SiteNav() {
       navigate('/symptoms');
       return;
     }
-    setStartAfterLogin(true);
     setAuthOpen(true);
   };
   const handleAuthSuccess = () => {
-    if (startAfterLogin) {
-      setStartAfterLogin(false);
-      navigate('/symptoms');
-    }
+    navigate('/symptoms');
   };
 
   const navItems = [
@@ -103,7 +99,7 @@ export default function SiteNav() {
 
   return (
     <>
-      <header className="site-nav">
+      <header className={`site-nav${isTriageRoute ? ' site-nav-triage' : ''}`}>
         <Link className="site-logo" to="/home" aria-label={t('nav.home')}>
           <span className="site-logo-mark"><HeartPulse size={20} strokeWidth={2.2} /></span>
           <span className="site-logo-wordmark">

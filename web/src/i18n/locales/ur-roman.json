@@ -4,10 +4,12 @@
   "select_language": "Apni zaban muntakhab karein",
   "continue": "Jaari rakhein",
   "back": "Wapas",
+  "try_again": "Dobara koshish karein",
   "skip": "Chorein",
   "or": "ya",
   "loading": "Load ho raha hai...",
   "error_generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
+  "assessment_failed": "Hum jaiza mukammal nahi kar sake. Aap ki likhi hui alaamaat yahin hain; dobara koshish karein. Agar foran khatra ho to local emergency service se rabta karein.",
 
   "onboarding": {
     "title": "Sehat Awaaz kaise kaam karta hai",
@@ -36,7 +38,9 @@
     "no_speech": "Koi awaaz nahi mili. Dobara koshish karein.",
     "no_mic": "Microphone nahi mila. Apna mic check karein.",
     "mic_denied": "Microphone tak rasai mustarad ho gayi. Browser ki settings mein mic ki ijazat dein.",
-    "network_error": "Network ki kharabi. Apna connection check karein."
+    "network_error": "Network ki kharabi. Apna connection check karein.",
+    "privacy_notice": "Speech recognition aap ka browser karta hai aur audio apni service ko bhej sakta hai. Aap ke continue karne ke baad transcript triage mein jata hai.",
+    "files_unavailable": "Audio file upload aur medical report analysis dastiyab nahi."
   },
 
   "transcript": {
@@ -63,7 +67,8 @@
     "home_care_tips": "Khud ki dekh bhaal",
     "watch_for": "In intibaahi alaamaat par nazar rakhein",
     "re_triage": "Nayi tashkhees shuru karein",
-    "share": "Nateeja share karein"
+    "share": "Nateeja share karein",
+    "demo_notice": "Local symptom matching se demo nateeja - clinical assessment nahi."
   },
 
   "nav": {
@@ -93,11 +98,11 @@
     "console_subtitle": "Awaaz se alaamaat batane ka preview",
     "ready": "TAYYAR",
     "listening": "MIC CHALU",
-    "speak_prompt": "Fitri andaaz mein bolein. Aap ki awaaz isi device par rahegi.",
+    "speak_prompt": "Microphone activity dekhne ke liye bolein; yeh preview speech ko text mein nahi badalta.",
     "try_prompt": "Microphone visualizer azmayein",
     "try_mic": "Microphone azmayein",
     "stop_mic": "Preview rokein",
-    "mic_privacy": "Is preview ke liye awaaz ka tajziya isi device par hota hai; record ya upload nahi hoti.",
+    "mic_privacy": "Yeh visualizer browser mein microphone levels check karta hai; speech ko transcribe ya upload nahi karta.",
     "mic_unsupported": "Is browser mein microphone preview dastiyab nahi.",
     "mic_denied": "Microphone ki ijazat nahi mili. Aap text se jaari rakh sakte hain.",
     "mic_failed": "Microphone shuru nahi ho saka. Barah-e-karam check karein.",
@@ -147,11 +152,11 @@
   },
 
   "facilities": {
-    "subtitle": "Triage ke baad OpenStreetMap mein qareebi hospitals aur clinics talaash karein.",
+    "subtitle": "Triage ke baad Google Maps par qareebi hospitals aur clinics talaash karein.",
     "search_failed": "Qareebi facilities ki talaash mukammal nahi ho saki. Internet connection check karein aur dobara koshish karein.",
     "warning_osm_unavailable": "OpenStreetMap search aarzi tor par dastiyab nahi. Local directory ke results phir bhi dikhaye ja sakte hain.",
     "warning_directory_unavailable": "Local facilities directory aarzi tor par dastiyab nahi. OpenStreetMap ke results phir bhi dikhaye ja sakte hain.",
-    "use_current_location": "Meri location ke qareeb talaash karein",
+    "use_current_location": "Mere qareeb hospitals talaash karein",
     "search_manually": "Shehar ya address se talaash karein",
     "location_placeholder": "Misaal: Lahore, Pakistan",
     "search": "Talaash karein",

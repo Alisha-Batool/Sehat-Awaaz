@@ -4,8 +4,20 @@ const { authenticate, optionalAuth } = require('../middleware/auth');
 const { triageLimiter } = require('../middleware/rateLimiter');
 const { symptomTextValidation, languageValidation, validate } = require('../middleware/validator');
 const orchestrator = require('../services/orchestrator.service');
+const logger = require('../utils/logger');
+const { performance } = require('node:perf_hooks');
 
 const router = Router();
+
+router.use((req, res, next) => {
+  const startedAt = performance.now();
+  res.on('finish', () => logger.info('Express triage request timing', {
+    path: req.path,
+    status: res.statusCode,
+    elapsedMs: Number((performance.now() - startedAt).toFixed(1)),
+  }));
+  next();
+});
 
 /**
  * POST /api/triage/start

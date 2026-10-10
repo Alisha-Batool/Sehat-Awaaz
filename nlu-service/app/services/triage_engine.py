@@ -2,13 +2,17 @@
 Combined triage engine: Rule Layer (deterministic) -> LLM Reasoning Layer (fallback).
 
 Safety principle: The rule layer runs FIRST. If a rule fires, the LLM CANNOT downgrade it.
-Default-to-caution: When LLM confidence is below threshold, round UP to the more cautious tier.
+Low-confidence home-care recommendations are rounded up to clinic.
 """
 
 import json
 from app.services import rule_engine, llm_client
-from app.models.schemas import SymptomProfile, TriageTier
+from app.models.schemas import SymptomProfile
 from app.config import CONFIDENCE_THRESHOLD
+
+
+class TriageAssessmentError(RuntimeError):
+    """Raised when the model cannot return a valid triage assessment."""
 
 TRIAGE_SYSTEM_PROMPT = """You are a medical triage assistant for Sehat Awaaz, a healthcare triage platform for Pakistan.
 You MUST classify the patient's symptoms into exactly ONE of these tiers:
@@ -64,10 +68,14 @@ async def evaluate(profile: SymptomProfile, language: str = "en") -> dict:
     # Layer 2: LLM reasoning for ambiguous cases
     llm_result = await _llm_evaluate(profile, language)
 
-    # Apply default-to-caution logic
+    # Low confidence can move home care to clinic, but is not evidence for an
+    # emergency when the model selected clinic.
     if llm_result["confidence"] < CONFIDENCE_THRESHOLD:
-        llm_result["tier"] = _round_up_tier(llm_result["tier"])
+        previous_tier = llm_result["tier"]
+        llm_result["tier"] = _round_up_tier(previous_tier)
         llm_result["rationale"] += " (confidence below threshold — rounded up to more cautious tier)"
+        if llm_result["tier"] == previous_tier:
+            llm_result["rationale"] = llm_result["rationale"].split(" (confidence below threshold")[0]
 
     llm_result["model_version"] = "ollama-local"
     llm_result["rule_id"] = None
@@ -107,25 +115,23 @@ async def _llm_evaluate(profile: SymptomProfile, language: str) -> dict:
         # Validate tier
         valid_tiers = {"emergency", "clinic", "home_care"}
         if result.get("tier") not in valid_tiers:
-            result["tier"] = "clinic"  # Default to cautious
-            result["rationale"] = "LLM returned invalid tier — defaulting to clinic"
-            result["confidence"] = 0.0
+            raise TriageAssessmentError("NLU returned an invalid triage tier")
+
+        if not isinstance(result.get("rationale"), str) or not result["rationale"].strip():
+            raise TriageAssessmentError("NLU returned no triage rationale")
 
         # Validate confidence
-        confidence = result.get("confidence", 0.5)
-        if not isinstance(confidence, (int, float)):
-            confidence = 0.5
+        confidence = result.get("confidence")
+        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) or not 0 <= confidence <= 1:
+            raise TriageAssessmentError("NLU returned an invalid confidence")
         result["confidence"] = float(confidence)
 
         return result
 
-    except (json.JSONDecodeError, KeyError, Exception):
-        # If LLM fails, default to clinic (cautious fallback)
-        return {
-            "tier": "clinic",
-            "rationale": "Unable to complete AI analysis — defaulting to clinic visit as a precaution",
-            "confidence": 0.3,
-        }
+    except TriageAssessmentError:
+        raise
+    except Exception as exc:
+        raise TriageAssessmentError("Unable to complete NLU triage assessment") from exc
 
 
 def _round_up_tier(tier: str) -> str:
@@ -133,5 +139,5 @@ def _round_up_tier(tier: str) -> str:
     if tier == "home_care":
         return "clinic"
     if tier == "clinic":
-        return "emergency"
+        return "clinic"
     return tier  # Already at highest

@@ -112,8 +112,11 @@ async function findOpenStreetMapFacilities(lat, lng, radiusKm, type) {
   if (cached) return cached;
 
   const amenityFilter =
-    type === 'all' ? 'hospital|clinic' : type;
-  const query = `[out:json][timeout:15];(node["amenity"~"${amenityFilter}"](around:${Math.round(radiusKm * 1000)},${lat},${lng});way["amenity"~"${amenityFilter}"](around:${Math.round(radiusKm * 1000)},${lat},${lng});relation["amenity"~"${amenityFilter}"](around:${Math.round(radiusKm * 1000)},${lat},${lng}););out center tags;`;
+    type === 'all' ? 'hospital|clinic|doctors' : type === 'clinic' ? 'clinic|doctors' : 'hospital';
+  const healthcareFilter =
+    type === 'all' ? 'hospital|clinic|doctor' : type === 'clinic' ? 'clinic|doctor' : 'hospital';
+  const radiusMeters = Math.round(radiusKm * 1000);
+  const query = `[out:json][timeout:15];(node["amenity"~"${amenityFilter}"](around:${radiusMeters},${lat},${lng});way["amenity"~"${amenityFilter}"](around:${radiusMeters},${lat},${lng});relation["amenity"~"${amenityFilter}"](around:${radiusMeters},${lat},${lng});node["healthcare"~"${healthcareFilter}"](around:${radiusMeters},${lat},${lng});way["healthcare"~"${healthcareFilter}"](around:${radiusMeters},${lat},${lng});relation["healthcare"~"${healthcareFilter}"](around:${radiusMeters},${lat},${lng}););out center tags;`;
   const payload = await fetchJson(
     OVERPASS_URL,
     {
